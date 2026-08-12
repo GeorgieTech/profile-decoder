@@ -6,9 +6,9 @@ Open it in **Google Chrome** (or any modern browser). No install required.
 
 ## Live demo
 
-After GitHub Pages is enabled:
+**[Open Profile Decoder in Chrome](https://georgietech.github.io/profile-decoder/)**
 
-`https://<your-github-username>.github.io/profile-decoder/`
+`https://georgietech.github.io/profile-decoder/`
 
 ## Run locally
 
