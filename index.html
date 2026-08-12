@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<!--
+  Profile Decoder — Control System XML Translator
+  Copyright (c) 2026 George Carrillo
+
+  MIT License
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="author" content="George Carrillo" />
+  <title>Profile Decoder — Control System XML Translator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #080b10;
+      --bg-elevated: #0d1117;
+      --surface: #11161e;
+      --surface-2: #161d27;
+      --surface-3: #1c2533;
+      --border: #243044;
+      --border-bright: #2f3f55;
+      --text: #e6edf7;
+      --text-muted: #7d8da6;
+      --text-dim: #5a6a82;
+      --accent: #00d4ff;
+      --accent-dim: rgba(0, 212, 255, 0.12);
+      --accent-glow: rgba(0, 212, 255, 0.25);
+      --green: #3dd68c;
+      --green-dim: rgba(61, 214, 140, 0.15);
+      --amber: #f5a623;
+      --amber-dim: rgba(245, 166, 35, 0.15);
+      --purple: #a78bfa;
+      --purple-dim: rgba(167, 139, 250, 0.15);
+      --pink: #f472b6;
+      --pink-dim: rgba(244, 114, 182, 0.15);
+      --danger: #f87171;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      min-height: 100vh;
+      background-image:
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 80, 120, 0.18), transparent),
+        linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+      background-size: 100% 100%, 48px 48px, 48px 48px;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 2.5rem 1.25rem 4rem;
+    }
+
+    /* ── Header ── */
+    header {
+      margin-bottom: 2.5rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.75rem;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .logo-mark {
+      width: 42px;
+      height: 42px;
+      background: var(--accent-dim);
+      border: 1px solid rgba(0, 212, 255, 0.35);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "IBM Plex Mono", monospace;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--accent);
+      box-shadow: 0 0 20px var(--accent-glow);
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      font-size: 1.55rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--text);
+    }
+
+    header h1 span {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .header-sub {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-left: calc(42px + 0.85rem);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.82rem;
+    }
+
+    /* ── Upload zone ── */
+    .upload-zone {
+      border: 1px dashed var(--border-bright);
+      border-radius: 12px;
+      background: var(--surface);
+      padding: 3rem 2rem;
+      text-align: center;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      margin-bottom: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .upload-zone::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, transparent 40%, var(--accent-dim));
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+
+    .upload-zone:hover::before,
+    .upload-zone.dragover::before { opacity: 1; }
+
+    .upload-zone:hover,
+    .upload-zone.dragover {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(0, 212, 255, 0.2), 0 0 30px var(--accent-glow);
+    }
+
+    .upload-zone .icon {
+      font-size: 2.2rem;
+      margin-bottom: 0.75rem;
+      position: relative;
+    }
+
+    .upload-zone h2 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+      position: relative;
+    }
+
+    .upload-zone p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      position: relative;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.8rem;
+    }
+
+    .upload-zone input[type="file"] { display: none; }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--accent);
+      color: #041018;
+      border: none;
+      padding: 0.55rem 1.1rem;
+      border-radius: 7px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      font-family: "IBM Plex Sans", sans-serif;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-top: 1.15rem;
+      position: relative;
+    }
+
+    .btn:hover {
+      background: #33ddff;
+      box-shadow: 0 0 18px var(--accent-glow);
+    }
+
+    .btn-secondary {
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border-bright);
+      margin-top: 0;
+    }
+
+    .btn-secondary:hover {
+      background: var(--surface-3);
+      border-color: var(--accent);
+      color: var(--accent);
+      box-shadow: none;
+    }
+
+    .btn-secondary.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    /* ── Results ── */
+    #results { display: none; }
+    #results.visible {
+      display: block;
+      animation: fadeIn 0.35s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .actions-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.35rem 1.5rem;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 12px;
+      bottom: 12px;
+      width: 3px;
+      border-radius: 0 3px 3px 0;
+      background: var(--border-bright);
+    }
+
+    .card.identity::before { background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+    .card.summary::before { background: var(--green); }
+    .card.power::before { background: var(--amber); }
+    .card.inputs::before { background: #60a5fa; }
+    .card.comm::before { background: var(--purple); }
+    .card.features::before { background: var(--pink); }
+    .card.notes::before { background: var(--amber); }
+    .card.raw::before { background: var(--text-dim); }
+
+    .card h3 {
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      font-family: "IBM Plex Mono", monospace;
+    }
+
+    .badge {
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 0.12rem 0.45rem;
+      border-radius: 4px;
+      background: var(--green-dim);
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-family: "IBM Plex Mono", monospace;
+    }
+
+    /* ── Identity ── */
+    .device-header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.25rem 2rem;
+      align-items: flex-start;
+    }
+
+    .device-identity { flex: 1; min-width: 200px; }
+
+    .device-identity .model {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.2rem;
+      color: var(--text);
+    }
+
+    .device-identity .manufacturer {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-family: "IBM Plex Mono", monospace;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 0.55rem;
+    }
+
+    .meta-item {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 0.5rem 0.7rem;
+    }
+
+    .meta-item .label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-dim);
+      margin-bottom: 0.15rem;
+      font-family: "IBM Plex Mono", monospace;
+    }
+
+    .meta-item .value {
+      font-weight: 600;
+      font-size: 0.88rem;
+      word-break: break-word;
+      color: var(--text);
+    }
+
+    /* ── Content ── */
+    .explanation p { margin-bottom: 0.75rem; }
+    .explanation ul { margin: 0.4rem 0 0.75rem 1.2rem; }
+    .explanation li { margin-bottom: 0.3rem; }
+
+    .step {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 0.65rem;
+      align-items: flex-start;
+    }
+
+    .step-number {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      background: var(--accent-dim);
+      color: var(--accent);
+      border: 1px solid rgba(0, 212, 255, 0.35);
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 600;
+      font-family: "IBM Plex Mono", monospace;
+      margin-top: 1px;
+    }
+
+    .step-content { flex: 1; padding-top: 0.05rem; font-size: 0.93rem; }
+
+    .tag {
+      display: inline-block;
+      font-size: 0.68rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      margin-right: 0.25rem;
+      margin-bottom: 0.15rem;
+      font-family: "IBM Plex Mono", monospace;
+      font-weight: 500;
+    }
+
+    .tag.power { background: var(--green-dim); color: var(--green); }
+    .tag.input { background: rgba(96, 165, 250, 0.15); color: #60a5fa; }
+    .tag.delay { background: var(--amber-dim); color: var(--amber); }
+    .tag.cmd { background: var(--purple-dim); color: var(--purple); }
+    .tag.ir { background: var(--pink-dim); color: var(--pink); }
+
+    .seq-block {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.1rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .seq-block h4 {
+      font-size: 0.9rem;
+      margin-bottom: 0.65rem;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-weight: 600;
+    }
+
+    .cmd-list { font-size: 0.88rem; color: var(--text-muted); }
+
+    code {
+      font-family: "IBM Plex Mono", monospace;
+      background: rgba(0, 0, 0, 0.35);
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+      font-size: 0.84em;
+      color: #b8d4e8;
+    }
+
+    .notes-box {
+      background: var(--amber-dim);
+      border-left: 3px solid var(--amber);
+      padding: 0.9rem 1rem;
+      border-radius: 0 7px 7px 0;
+      white-space: pre-wrap;
+      font-size: 0.86rem;
+      line-height: 1.55;
+      font-family: "IBM Plex Mono", monospace;
+      color: #e8d5b0;
+    }
+
+    /* ── Raw XML panel ── */
+    .raw-panel {
+      display: none;
+      margin-top: 0.25rem;
+    }
+
+    .raw-panel.open {
+      display: block;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .raw-panel pre {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.1rem;
+      overflow: auto;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.75rem;
+      line-height: 1.45;
+      max-height: 420px;
+      color: #9eb4c8;
+      white-space: pre;
+      margin: 0;
+    }
+
+    .raw-panel .raw-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.6rem;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 3rem;
+      padding-top: 1.75rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-dim);
+      font-size: 0.78rem;
+      font-family: "IBM Plex Mono", monospace;
+      line-height: 1.7;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    .contact-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.35rem 1.5rem;
+      margin-top: 2.5rem;
+      text-align: left;
+    }
+
+    .contact-card h3 {
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      font-family: "IBM Plex Mono", monospace;
+    }
+
+    .contact-grid {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .contact-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem 1rem;
+      align-items: baseline;
+    }
+
+    .contact-label {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-dim);
+      min-width: 72px;
+    }
+
+    .contact-value {
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+
+    .contact-value a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .contact-value a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 640px) {
+      header h1 { font-size: 1.3rem; }
+      .header-sub { margin-left: 0; margin-top: 0.4rem; }
+      .header-top { flex-wrap: wrap; }
+      .card { padding: 1.15rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="header-top">
+        <div class="logo-mark">PD</div>
+        <h1>Profile <span>Decoder</span></h1>
+      </div>
+      <p class="header-sub">// Savant RacePoint XML → human-readable control logic</p>
+    </header>
+
+    <div class="upload-zone" id="dropZone">
+      <div class="icon">⬡</div>
+      <h2>Drop profile XML</h2>
+      <p>Savant / RacePoint component profiles · projectors · displays · devices</p>
+      <button class="btn" id="browseBtn">Select file</button>
+      <input type="file" id="fileInput" accept=".xml,text/xml,application/xml,.txt" />
+    </div>
+
+    <div id="results">
+      <div class="actions-bar">
+        <button class="btn btn-secondary" id="newFileBtn">← New file</button>
+        <button class="btn btn-secondary" id="copyBtn">Copy output</button>
+        <button class="btn btn-secondary" id="toggleRawBtn">Show raw XML</button>
+      </div>
+
+      <div class="card identity" id="identityCard">
+        <h3>Device Identity</h3>
+        <div class="device-header">
+          <div class="device-identity">
+            <div class="model" id="deviceModel">—</div>
+            <div class="manufacturer" id="deviceManufacturer">—</div>
+          </div>
+          <div class="meta-grid" id="metaGrid"></div>
+        </div>
+      </div>
+
+      <div class="card summary">
+        <h3>What this profile does <span class="badge">decoded</span></h3>
+        <div class="explanation" id="summaryText"></div>
+      </div>
+
+      <div class="card power" id="powerCard" style="display:none;">
+        <h3>Power Sequences</h3>
+        <div id="powerContent"></div>
+      </div>
+
+      <div class="card inputs" id="inputsCard" style="display:none;">
+        <h3>Inputs &amp; Switching</h3>
+        <div id="inputsContent"></div>
+      </div>
+
+      <div class="card comm" id="commCard" style="display:none;">
+        <h3>Control Interfaces</h3>
+        <div id="commContent"></div>
+      </div>
+
+      <div class="card features" id="featuresCard" style="display:none;">
+        <h3>Capabilities</h3>
+        <div id="featuresContent"></div>
+      </div>
+
+      <div class="card notes" id="notesCard" style="display:none;">
+        <h3>Profile Notes</h3>
+        <div id="notesContent"></div>
+      </div>
+
+      <div class="card raw" id="rawCard" style="display:none;">
+        <h3>Raw XML Source</h3>
+        <div class="raw-panel" id="rawPanel">
+          <div class="raw-meta">
+            <span id="rawSize">—</span>
+            <span>read-only</span>
+          </div>
+          <pre id="rawXml"></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="contact-card" id="contact">
+      <h3>Contact / Developer</h3>
+      <div class="contact-grid">
+        <div class="contact-row">
+          <span class="contact-label">Name</span>
+          <span class="contact-value">George Carrillo</span>
+        </div>
+        <div class="contact-row">
+          <span class="contact-label">Email</span>
+          <span class="contact-value"><a href="mailto:carrilloslife@gmail.com">carrilloslife@gmail.com</a></span>
+        </div>
+        <div class="contact-row">
+          <span class="contact-label">GitHub</span>
+          <span class="contact-value"><a href="https://github.com/GeorgieTech" target="_blank" rel="noopener noreferrer">github.com/GeorgieTech</a></span>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <div>© 2026 George Carrillo · Profile Decoder</div>
+      <div>Licensed under the <a href="#license-notice" id="licenseLink">MIT License</a></div>
+      <div style="margin-top:0.5rem;opacity:0.85;">client-side only · no data leaves this browser · v1</div>
+    </footer>
+
+    <div id="license-notice" style="display:none;"></div>
+  </div>
+
+  <script>
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const browseBtn = document.getElementById('browseBtn');
+    const results = document.getElementById('results');
+    const newFileBtn = document.getElementById('newFileBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const toggleRawBtn = document.getElementById('toggleRawBtn');
+    const rawPanel = document.getElementById('rawPanel');
+    const rawCard = document.getElementById('rawCard');
+    const rawXml = document.getElementById('rawXml');
+    const rawSize = document.getElementById('rawSize');
+
+    let rawVisible = false;
+
+    // License notice
+    document.getElementById('licenseLink')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      alert(
+        'MIT License\n\n' +
+        'Copyright (c) 2026 George Carrillo\n\n' +
+        'Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\n' +
+        'The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\n' +
+        'THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.'
+      );
+    });
+
+    browseBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      fileInput.click();
+    });
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+    });
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files[0]) handleFile(fileInput.files[0]);
+    });
+
+    newFileBtn.addEventListener('click', () => {
+      results.classList.remove('visible');
+      dropZone.style.display = 'block';
+      fileInput.value = '';
+      setRawVisible(false);
+    });
+
+    toggleRawBtn.addEventListener('click', () => {
+      setRawVisible(!rawVisible);
+    });
+
+    function setRawVisible(show) {
+      rawVisible = show;
+      if (show) {
+        rawCard.style.display = 'block';
+        rawPanel.classList.add('open');
+        toggleRawBtn.textContent = 'Hide raw XML';
+        toggleRawBtn.classList.add('active');
+        // scroll into view so user sees it
+        setTimeout(() => {
+          rawCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 50);
+      } else {
+        rawPanel.classList.remove('open');
+        rawCard.style.display = 'none';
+        toggleRawBtn.textContent = 'Show raw XML';
+        toggleRawBtn.classList.remove('active');
+      }
+    }
+
+    copyBtn.addEventListener('click', () => {
+      const parts = [
+        document.getElementById('summaryText').innerText,
+        document.getElementById('powerContent')?.innerText || '',
+        document.getElementById('inputsContent')?.innerText || '',
+        document.getElementById('commContent')?.innerText || '',
+        document.getElementById('featuresContent')?.innerText || ''
+      ].filter(Boolean).join('\n\n');
+      navigator.clipboard.writeText(parts).then(() => {
+        const prev = copyBtn.textContent;
+        copyBtn.textContent = 'Copied';
+        setTimeout(() => { copyBtn.textContent = prev; }, 1400);
+      });
+    });
+
+    function handleFile(file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const xmlText = e.target.result;
+        try {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(xmlText, 'application/xml');
+          if (doc.querySelector('parsererror')) {
+            alert('This does not appear to be valid XML.');
+            return;
+          }
+          processProfile(doc, xmlText, file);
+        } catch (err) {
+          alert('Error reading file: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function processProfile(doc, rawText, file) {
+      dropZone.style.display = 'none';
+      results.classList.add('visible');
+      setRawVisible(false);
+
+      rawXml.textContent = rawText;
+      const kb = (rawText.length / 1024).toFixed(1);
+      rawSize.textContent = (file && file.name ? file.name + ' · ' : '') + kb + ' KB · ' + rawText.split('\n').length + ' lines';
+
+      const root = doc.querySelector('component') || doc.documentElement;
+      const manufacturer = root.getAttribute('manufacturer') || 'Unknown';
+      const model = root.getAttribute('model') || 'Unknown';
+      const deviceClass = root.getAttribute('device_class') || '';
+      const rpmVersion = root.getAttribute('rpm_xml_version') || '';
+
+      document.getElementById('deviceModel').textContent = model;
+      document.getElementById('deviceManufacturer').textContent =
+        manufacturer + (deviceClass ? '  ·  ' + deviceClass : '');
+
+      const metaGrid = document.getElementById('metaGrid');
+      metaGrid.innerHTML = '';
+      addMeta(metaGrid, 'Class', deviceClass || '—');
+      addMeta(metaGrid, 'RPM', rpmVersion || '—');
+      addMeta(metaGrid, 'Schema', 'RacePoint');
+
+      const notesEl = root.querySelector('notes');
+      const notesCard = document.getElementById('notesCard');
+      if (notesEl && notesEl.textContent.trim()) {
+        notesCard.style.display = 'block';
+        document.getElementById('notesContent').innerHTML =
+          '<div class="notes-box">' + escapeHtml(notesEl.textContent.trim()) + '</div>';
+      } else {
+        notesCard.style.display = 'none';
+      }
+
+      renderCommunication(root);
+      renderInputs(root);
+      renderPower(root);
+      renderFeatures(root);
+      renderSummary(root, { manufacturer, model, deviceClass });
+    }
+
+    function renderCommunication(root) {
+      const card = document.getElementById('commCard');
+      const content = document.getElementById('commContent');
+      const ci = root.querySelector('control_interfaces');
+      if (!ci) { card.style.display = 'none'; return; }
+      card.style.display = 'block';
+      const preferred = ci.getAttribute('preferred') || '';
+      let html = '';
+      if (preferred) {
+        html += '<p>Preferred interface: <strong>' + preferred.toUpperCase() + '</strong></p>';
+      }
+      html += '<ul>';
+      const rs232 = ci.querySelector('rs232');
+      if (rs232) {
+        const baud = rs232.getAttribute('preferred_baud_rate') ||
+          (rs232.querySelector('baud_rate') && rs232.querySelector('baud_rate').getAttribute('speed')) || '?';
+        const parity = rs232.getAttribute('parity_bit') || '';
+        const dataLen = rs232.getAttribute('data_length') || '';
+        const stop = rs232.getAttribute('stop_bit') || '';
+        const connector = rs232.getAttribute('connector_type') || '';
+        const cable = rs232.getAttribute('cable_type') || '';
+        html += '<li><strong>RS-232</strong> — ' + baud + ' baud';
+        if (dataLen || parity || stop) html += ', ' + dataLen + (parity ? parity[0].toUpperCase() : '') + stop;
+        if (connector) html += ' · ' + connector;
+        if (cable) html += ' · ' + cable;
+        html += '</li>';
+      }
+      const ip = ci.querySelector('ip');
+      if (ip) {
+        const port = ip.getAttribute('port') || '?';
+        const proto = ip.getAttribute('protocol') || 'tcp';
+        html += '<li><strong>IP</strong> — TCP port <code>' + port + '</code> (' + proto + ')</li>';
+      }
+      if (ci.querySelector('ir')) {
+        html += '<li><strong>IR</strong> — RacePoint infrared codes defined</li>';
+      }
+      html += '</ul>';
+      html += '<p class="cmd-list">Frame format ends with <code>0D0A</code>. Responses: <code>ok</code>, <code>err_cmd</code>, <code>err_option</code>, <code>err_auth</code>, etc.</p>';
+      content.innerHTML = html;
+    }
+
+    function renderInputs(root) {
+      const card = document.getElementById('inputsCard');
+      const content = document.getElementById('inputsContent');
+      const media = root.querySelector('media_interfaces');
+      if (!media) { card.style.display = 'none'; return; }
+      const inputs = Array.from(media.querySelectorAll('input'));
+      if (!inputs.length) { card.style.display = 'none'; return; }
+      card.style.display = 'block';
+      let html = '<p><strong>' + inputs.length + '</strong> video inputs mapped:</p><ul>';
+      inputs.forEach(function(inp) {
+        const name = inp.getAttribute('name_on_component') || 'Unknown';
+        html += '<li><strong>' + escapeHtml(name) + '</strong></li>';
+      });
+      html += '</ul>';
+      const alwaysRepeat = root.querySelector('always_repeat_input_selection');
+      if (alwaysRepeat && alwaysRepeat.textContent.trim() === 'true') {
+        html += '<p><span class="tag input">always_repeat</span> Input select is re-sent every time (projector may not retain last source).</p>';
+      }
+      content.innerHTML = html;
+    }
+
+    function renderPower(root) {
+      const card = document.getElementById('powerCard');
+      const content = document.getElementById('powerContent');
+      const powerOn = root.querySelector('action[name="PowerOn"]');
+      const powerOff = root.querySelector('action[name="PowerOff"]');
+      if (!powerOn && !powerOff) { card.style.display = 'none'; return; }
+      card.style.display = 'block';
+      let html = '';
+      if (powerOn) html += buildPowerSequence(powerOn, 'Power On');
+      if (powerOff) html += buildPowerSequence(powerOff, 'Power Off');
+      content.innerHTML = html;
+    }
+
+    function buildPowerSequence(actionEl, title) {
+      const interfaces = Array.from(actionEl.querySelectorAll('command_interface'));
+      let html = '<div class="seq-block"><h4><span class="tag power">' + title + '</span></h4>';
+
+      const cond = actionEl.querySelector('execute_on_state_variable_condition');
+      if (cond) {
+        const name = cond.getAttribute('name') || '';
+        const test = cond.getAttribute('test_condition') || '';
+        const val = cond.textContent.trim();
+        html += '<p>Gate: only when <code>' + escapeHtml(name) + '</code> is <em>' + escapeHtml(test) + '</em> “' + escapeHtml(val) + '”.</p>';
+      }
+
+      const preferred = interfaces.find(function(i) { return i.getAttribute('interface') === 'rs232'; })
+        || interfaces.find(function(i) { return i.getAttribute('interface') === 'ip'; })
+        || interfaces[0];
+
+      if (preferred) {
+        const iface = preferred.getAttribute('interface') || '';
+        const commands = Array.from(preferred.querySelectorAll('command'));
+        html += '<p>Via <strong>' + iface.toUpperCase() + '</strong>:</p><div>';
+        commands.forEach(function(cmd, idx) {
+          const strEl = cmd.querySelector('command_string');
+          const str = strEl ? strEl.textContent.trim() : '(command)';
+          const delayEl = cmd.querySelector('delay');
+          const delay = delayEl ? delayEl.getAttribute('ms_delay') : null;
+          const needsResp = cmd.getAttribute('response_required') === 'yes';
+          html += '<div class="step"><div class="step-number">' + (idx + 1) + '</div><div class="step-content">';
+          html += 'Send <code>' + escapeHtml(str) + '</code>';
+          if (needsResp) html += ' <span class="tag cmd">await response</span>';
+          if (delay) {
+            const sec = (parseInt(delay, 10) / 1000).toFixed(0);
+            html += '<br><span class="tag delay">wait ' + sec + 's</span>';
+          }
+          html += '</div></div>';
+        });
+        html += '</div>';
+      }
+
+      const irIface = interfaces.find(function(i) { return i.getAttribute('interface') === 'ir'; });
+      if (irIface) {
+        const delayEl = irIface.querySelector('delay');
+        const delay = delayEl ? delayEl.getAttribute('ms_delay') : null;
+        const sec = delay ? (parseInt(delay, 10) / 1000).toFixed(0) : '?';
+        html += '<p><span class="tag ir">IR</span> Fallback IR code defined';
+        if (delay) html += ' · <strong>' + sec + 's</strong> post-send wait';
+        html += '.</p>';
+      }
+
+      for (let i = 0; i < actionEl.childNodes.length; i++) {
+        const n = actionEl.childNodes[i];
+        if (n.nodeType === 8) {
+          html += '<p style="color:var(--text-dim);font-size:0.84rem;font-family:IBM Plex Mono,monospace;">// ' + escapeHtml(n.textContent.trim()) + '</p>';
+          break;
+        }
+      }
+      html += '</div>';
+      return html;
+    }
+
+    function renderFeatures(root) {
+      const card = document.getElementById('featuresCard');
+      const content = document.getElementById('featuresContent');
+      const pictureModes = Array.from(root.querySelectorAll('action[name^="SetPictureMode"]')).map(function(a) {
+        return a.getAttribute('name').replace('SetPictureMode', '');
+      });
+      const aspects = Array.from(root.querySelectorAll('action[name^="SetAspectRatio"]')).map(function(a) {
+        return a.getAttribute('name').replace('SetAspectRatio', '');
+      });
+      const positions = Array.from(root.querySelectorAll('action[name^="SetPicturePosition"]')).map(function(a) {
+        return a.getAttribute('name').replace('SetPicturePosition', '');
+      });
+      const hasOSD = !!(root.querySelector('action[name="Menu"]') || root.querySelector('action[name="OSDUp"]'));
+      const hasQueries = !!root.querySelector('action[name^="Query"]');
+      const hasMute = !!(root.querySelector('action[name*="PictureMuting"]') || root.querySelector('action[name*="blank"]'));
+      const has3D = !!(root.querySelector('action[name*="3D"]') || root.querySelector('action[name*="2D-3D"]'));
+
+      const items = [];
+      if (pictureModes.length) {
+        items.push('<strong>Picture modes</strong> — ' + pictureModes.map(function(m) {
+          return m.replace(/([A-Z])/g, ' $1').trim();
+        }).join(', '));
+      }
+      if (aspects.length) items.push('<strong>Aspect ratios</strong> — ' + aspects.join(', '));
+      if (positions.length) {
+        items.push('<strong>Picture positions / lens</strong> — ' + positions.join(', ') + ' <span class="tag delay">~30s</span>');
+      }
+      if (hasOSD) items.push('OSD navigation (Menu · arrows · Enter · Reset)');
+      if (hasMute) items.push('Picture mute / blank');
+      if (has3D) items.push('2D / 3D select');
+      if (hasQueries) items.push('Status queries (power, mode, aspect, levels…)');
+
+      const adjustments = [];
+      if (root.querySelector('action[name="SetBrightness"]')) adjustments.push('Brightness');
+      if (root.querySelector('action[name="SetContrast"]')) adjustments.push('Contrast');
+      if (root.querySelector('action[name="SetHue"]')) adjustments.push('Hue');
+      if (root.querySelector('action[name="SetSharpness"]')) adjustments.push('Sharpness');
+      if (root.querySelector('action[name="SetColor"]')) adjustments.push('Color');
+      if (adjustments.length) items.push('Image levels: ' + adjustments.join(', '));
+
+      if (!items.length) { card.style.display = 'none'; return; }
+      card.style.display = 'block';
+      content.innerHTML = '<ul>' + items.map(function(i) { return '<li>' + i + '</li>'; }).join('') + '</ul>';
+    }
+
+    function renderSummary(root, info) {
+      const manufacturer = info.manufacturer, model = info.model, deviceClass = info.deviceClass;
+      let html = '';
+      html += '<p>Savant <strong>RacePoint</strong> component profile for <strong>' + escapeHtml(manufacturer) + ' ' + escapeHtml(model) + '</strong>';
+      if (deviceClass) html += ' <span style="color:var(--text-muted)">(class: ' + escapeHtml(deviceClass) + ')</span>';
+      html += '.</p>';
+      html += '<p>This file teaches the control system how to:</p><ul>';
+      html += '<li>Power the device <strong>on / off</strong> with correct warm-up &amp; cool-down timing</li>';
+      html += '<li>Select video inputs</li>';
+      html += '<li>Drive picture modes, aspect, and image parameters</li>';
+      html += '<li>Poll status feedback</li>';
+      html += '</ul>';
+
+      const preferred = root.querySelector('control_interfaces') &&
+        root.querySelector('control_interfaces').getAttribute('preferred');
+      if (preferred === 'rs232') {
+        html += '<p>Default transport is <strong>RS-232</strong>; IP and IR paths are also fully defined.</p>';
+      } else if (preferred === 'ip') {
+        html += '<p>Default transport is <strong>IP</strong>; serial and IR paths are also defined.</p>';
+      }
+
+      html += '<p><span class="tag delay">timing</span> Power-on holds for tens of seconds after the command so the light engine can stabilize. Power-off is longer still — projectors need cool-down time.</p>';
+      document.getElementById('summaryText').innerHTML = html;
+    }
+
+    function addMeta(container, label, value) {
+      const div = document.createElement('div');
+      div.className = 'meta-item';
+      div.innerHTML = '<div class="label">' + label + '</div><div class="value">' + escapeHtml(value) + '</div>';
+      container.appendChild(div);
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+  </script>
+</body>
+</html>
