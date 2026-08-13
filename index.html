@@ -130,6 +130,101 @@
       font-size: 0.82rem;
     }
 
+    /* Persistent field stopwatches — always visible across tabs */
+    .timer-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.65rem;
+      margin: 1.1rem 0 0;
+      padding: 0.85rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    @media (max-width: 720px) {
+      .timer-bar { grid-template-columns: 1fr; }
+    }
+
+    .timer-unit {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.65rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .timer-unit.running {
+      border-color: rgba(0, 212, 255, 0.45);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .timer-label {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-dim);
+    }
+
+    .timer-display {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 1.45rem;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 0.04em;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+    }
+
+    .timer-unit.running .timer-display {
+      color: #5eead4;
+    }
+
+    .timer-controls {
+      display: flex;
+      gap: 0.35rem;
+    }
+
+    .timer-controls button {
+      flex: 1;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.72rem;
+      padding: 0.35rem 0.4rem;
+      border-radius: 5px;
+      border: 1px solid var(--border-bright);
+      background: var(--surface);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+
+    .timer-controls button:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .timer-controls button.primary-run {
+      background: var(--accent-dim);
+      border-color: rgba(0, 212, 255, 0.4);
+      color: var(--accent);
+    }
+
+    .timer-controls button.primary-run.is-stop {
+      background: rgba(249, 115, 22, 0.12);
+      border-color: rgba(249, 115, 22, 0.45);
+      color: #fb923c;
+    }
+
+    .timer-hint {
+      margin-top: 0.45rem;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      font-family: "IBM Plex Mono", monospace;
+    }
+
     /* ── Upload zone ── */
     .upload-zone {
       border: 1px dashed var(--border-bright);
@@ -271,12 +366,205 @@
 
     .card.identity::before { background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
     .card.summary::before { background: var(--green); }
+    .card.diagram::before { background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+    .card.field::before { background: #f97316; box-shadow: 0 0 10px rgba(249, 115, 22, 0.35); }
     .card.power::before { background: var(--amber); }
     .card.inputs::before { background: #60a5fa; }
     .card.comm::before { background: var(--purple); }
     .card.features::before { background: var(--pink); }
     .card.notes::before { background: var(--amber); }
     .card.raw::before { background: var(--text-dim); }
+
+    .profile-diagram-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #0a0e14;
+      padding: 0.85rem 0.6rem 0.4rem;
+      margin-top: 0.35rem;
+    }
+
+    .profile-diagram-wrap svg {
+      display: block;
+      min-width: 520px;
+      width: 100%;
+      height: auto;
+    }
+
+    .profile-diagram-caption {
+      margin-top: 0.75rem;
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    /* Zone stack multi-upload */
+    .stack-intro {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      line-height: 1.5;
+      margin-bottom: 1.15rem;
+    }
+
+    .stack-slots {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    @media (max-width: 900px) {
+      .stack-slots { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 560px) {
+      .stack-slots { grid-template-columns: 1fr; }
+    }
+
+    .stack-slot {
+      background: var(--surface);
+      border: 1px dashed var(--border-bright);
+      border-radius: 10px;
+      padding: 1rem;
+      min-height: 120px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      position: relative;
+    }
+
+    .stack-slot:hover, .stack-slot.dragover {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    .stack-slot.filled {
+      border-style: solid;
+      border-color: var(--border);
+      cursor: default;
+    }
+
+    .stack-slot .slot-label {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-dim);
+      margin-bottom: 0.5rem;
+    }
+
+    .stack-slot .slot-empty {
+      color: var(--text-dim);
+      font-size: 0.88rem;
+      line-height: 1.4;
+    }
+
+    .stack-slot .slot-meta .slot-model {
+      font-weight: 600;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    .stack-slot .slot-meta .slot-mfr {
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      margin-top: 0.15rem;
+    }
+
+    .stack-slot .slot-meta .slot-tags {
+      margin-top: 0.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+    }
+
+    .stack-slot input[type="file"] { display: none; }
+
+    .slot-clear {
+      position: absolute;
+      top: 0.55rem;
+      right: 0.55rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-family: "IBM Plex Mono", monospace;
+      padding: 0.2rem 0.45rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .slot-clear:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .stack-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .stack-results { display: none; }
+    .stack-results.visible { display: block; animation: fadeIn 0.3s ease; }
+
+    .field-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .field-list li {
+      position: relative;
+      padding: 0.65rem 0.75rem 0.65rem 2rem;
+      margin-bottom: 0.5rem;
+      background: rgba(249, 115, 22, 0.06);
+      border: 1px solid rgba(249, 115, 22, 0.2);
+      border-radius: 6px;
+      font-size: 0.9rem;
+      line-height: 1.45;
+      color: var(--text);
+    }
+
+    .field-list li::before {
+      content: "!";
+      position: absolute;
+      left: 0.65rem;
+      top: 0.65rem;
+      width: 1.1rem;
+      height: 1.1rem;
+      border-radius: 50%;
+      background: rgba(249, 115, 22, 0.25);
+      color: #fb923c;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.72rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .timing-pill {
+      display: inline-block;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      background: var(--amber-dim);
+      color: var(--amber);
+      margin-left: 0.35rem;
+    }
+
+    .timing-pill.slow {
+      background: rgba(249, 115, 22, 0.15);
+      color: #fb923c;
+    }
+
+    .timing-pill.fast {
+      background: var(--green-dim);
+      color: var(--green);
+    }
 
     .card h3 {
       font-size: 0.78rem;
@@ -554,11 +842,205 @@
       text-decoration: underline;
     }
 
+    /* ── Nav tabs ── */
+    .nav-tabs {
+      display: flex;
+      gap: 0.35rem;
+      margin: 1.25rem 0 1.75rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0;
+    }
+
+    .nav-tab {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.78rem;
+      font-weight: 500;
+      padding: 0.55rem 1rem;
+      color: var(--text-dim);
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .nav-tab:hover {
+      color: var(--text);
+    }
+
+    .nav-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .view { display: none; }
+    .view.active { display: block; animation: fadeIn 0.3s ease; }
+
+    /* ── Case study ── */
+    .case-hero {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem 1.6rem;
+      margin-bottom: 1.25rem;
+      border-left: 3px solid #f97316;
+    }
+
+    .case-hero h2 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+
+    .case-hero p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.55;
+    }
+
+    .case-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.35rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .case-section h3 {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 0.85rem;
+    }
+
+    .case-section p, .case-section li {
+      font-size: 0.92rem;
+      line-height: 1.55;
+      color: var(--text);
+    }
+
+    .case-section ul, .case-section ol {
+      margin: 0.5rem 0 0.75rem 1.1rem;
+    }
+
+    .case-section li { margin-bottom: 0.35rem; }
+
+    .case-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      margin: 0.75rem 0;
+    }
+
+    .case-table th,
+    .case-table td {
+      text-align: left;
+      padding: 0.5rem 0.65rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    .case-table th {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-dim);
+      font-weight: 500;
+    }
+
+    .case-table td { color: var(--text); }
+
+    .case-table tr:last-child td { border-bottom: none; }
+
+    .case-callout {
+      background: rgba(249, 115, 22, 0.08);
+      border: 1px solid rgba(249, 115, 22, 0.25);
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      margin: 0.85rem 0;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: var(--text);
+    }
+
+    .case-callout strong { color: #fb923c; }
+
+    .timeline {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin: 0.75rem 0;
+      padding-left: 0.5rem;
+      border-left: 2px solid var(--border-bright);
+    }
+
+    .timeline div {
+      padding: 0.35rem 0 0.35rem 0.85rem;
+      position: relative;
+    }
+
+    .timeline div::before {
+      content: "";
+      position: absolute;
+      left: -6px;
+      top: 0.7rem;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .diagram-wrap {
+      margin: 1rem 0 0.5rem;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #0a0e14;
+      padding: 1rem 0.75rem 0.5rem;
+    }
+
+    .diagram-wrap svg {
+      display: block;
+      min-width: 640px;
+      width: 100%;
+      height: auto;
+    }
+
+    .diagram-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem 1.25rem;
+      margin-top: 0.85rem;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+    }
+
+    .diagram-legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .diagram-legend i {
+      display: inline-block;
+      width: 18px;
+      height: 4px;
+      border-radius: 2px;
+    }
+
     @media (max-width: 640px) {
       header h1 { font-size: 1.3rem; }
       .header-sub { margin-left: 0; margin-top: 0.4rem; }
       .header-top { flex-wrap: wrap; }
       .card { padding: 1.15rem; }
+      .nav-tabs { overflow-x: auto; }
     }
   </style>
 </head>
@@ -570,12 +1052,48 @@
         <h1>Profile <span>Decoder</span></h1>
       </div>
       <p class="header-sub">// Savant RacePoint XML → human-readable control logic</p>
+
+      <div class="timer-bar" id="timerBar" aria-label="Field stopwatches">
+        <div class="timer-unit" data-timer="0" id="timerUnit0">
+          <div class="timer-label">Timer 1 · e.g. zone On</div>
+          <div class="timer-display" id="timerDisplay0">00:00.0</div>
+          <div class="timer-controls">
+            <button type="button" class="primary-run" data-timer-action="toggle" data-timer="0">Start</button>
+            <button type="button" data-timer-action="reset" data-timer="0">Reset</button>
+          </div>
+        </div>
+        <div class="timer-unit" data-timer="1" id="timerUnit1">
+          <div class="timer-label">Timer 2 · e.g. processor</div>
+          <div class="timer-display" id="timerDisplay1">00:00.0</div>
+          <div class="timer-controls">
+            <button type="button" class="primary-run" data-timer-action="toggle" data-timer="1">Start</button>
+            <button type="button" data-timer-action="reset" data-timer="1">Reset</button>
+          </div>
+        </div>
+        <div class="timer-unit" data-timer="2" id="timerUnit2">
+          <div class="timer-label">Timer 3 · e.g. display</div>
+          <div class="timer-display" id="timerDisplay2">00:00.0</div>
+          <div class="timer-controls">
+            <button type="button" class="primary-run" data-timer-action="toggle" data-timer="2">Start</button>
+            <button type="button" data-timer-action="reset" data-timer="2">Reset</button>
+          </div>
+        </div>
+      </div>
+      <p class="timer-hint">// field stopwatches — stay running across Decoder · Zone Stack · Case Study</p>
     </header>
+
+    <nav class="nav-tabs" role="tablist">
+      <button type="button" class="nav-tab active" data-view="decoder" id="tabDecoder">Decoder</button>
+      <button type="button" class="nav-tab" data-view="stack" id="tabStack">Zone Stack</button>
+      <button type="button" class="nav-tab" data-view="case" id="tabCase">Case Study</button>
+    </nav>
+
+    <div class="view active" id="viewDecoder">
 
     <div class="upload-zone" id="dropZone">
       <div class="icon">⬡</div>
       <h2>Drop profile XML</h2>
-      <p>Savant / RacePoint component profiles · projectors · displays · devices</p>
+      <p>Savant / RacePoint profiles · processors · displays · sources · relays · shades</p>
       <button class="btn" id="browseBtn">Select file</button>
       <input type="file" id="fileInput" accept=".xml,text/xml,application/xml,.txt" />
     </div>
@@ -601,6 +1119,28 @@
       <div class="card summary">
         <h3>What this profile does <span class="badge">decoded</span></h3>
         <div class="explanation" id="summaryText"></div>
+      </div>
+
+      <div class="card diagram" id="diagramCard" style="display:none;">
+        <h3>Timing &amp; control path</h3>
+        <div class="profile-diagram-wrap" id="profileDiagram"></div>
+        <p class="profile-diagram-caption" id="diagramCaption"></p>
+      </div>
+
+      <div class="card features" id="servicesCard" style="display:none;">
+        <h3>Services this profile can expose</h3>
+        <div id="servicesContent"></div>
+      </div>
+
+      <div class="card diagram" id="servicesDiagramCard" style="display:none;">
+        <h3>Service map &amp; preferred routing</h3>
+        <div class="profile-diagram-wrap" id="servicesDiagram"></div>
+        <p class="profile-diagram-caption" id="servicesDiagramCaption"></p>
+      </div>
+
+      <div class="card field" id="fieldCard" style="display:none;">
+        <h3>Field implications &amp; what to look for <span class="badge" style="background:rgba(249,115,22,0.15);color:#fb923c;">site reality</span></h3>
+        <ul class="field-list" id="fieldContent"></ul>
       </div>
 
       <div class="card power" id="powerCard" style="display:none;">
@@ -639,6 +1179,439 @@
         </div>
       </div>
     </div>
+    </div><!-- /viewDecoder -->
+
+    <div class="view" id="viewStack">
+      <p class="stack-intro">
+        Load up to <strong>6</strong> RacePoint profiles from the same zone (e.g. processor, display, sources, speakers, drapes, masking).
+        The stack view compares power timing and control paths, and highlights moments where devices interact or race.
+      </p>
+
+      <div class="stack-slots" id="stackSlots">
+        <div class="stack-slot" data-slot="0" id="stackSlot0">
+          <div class="slot-label">Profile 1</div>
+          <div class="slot-empty">Drop XML or click to add<br><span style="opacity:0.7">e.g. processor</span></div>
+          <div class="slot-meta" style="display:none"></div>
+          <input type="file" accept=".xml,text/xml,application/xml,.txt" />
+        </div>
+        <div class="stack-slot" data-slot="1" id="stackSlot1">
+          <div class="slot-label">Profile 2</div>
+          <div class="slot-empty">Drop XML or click to add<br><span style="opacity:0.7">e.g. display</span></div>
+          <div class="slot-meta" style="display:none"></div>
+          <input type="file" accept=".xml,text/xml,application/xml,.txt" />
+        </div>
+        <div class="stack-slot" data-slot="2" id="stackSlot2">
+          <div class="slot-label">Profile 3</div>
+          <div class="slot-empty">Drop XML or click to add<br><span style="opacity:0.7">e.g. speakers</span></div>
+          <div class="slot-meta" style="display:none"></div>
+          <input type="file" accept=".xml,text/xml,application/xml,.txt" />
+        </div>
+        <div class="stack-slot" data-slot="3" id="stackSlot3">
+          <div class="slot-label">Profile 4</div>
+          <div class="slot-empty">Drop XML or click to add<br><span style="opacity:0.7">e.g. source 1</span></div>
+          <div class="slot-meta" style="display:none"></div>
+          <input type="file" accept=".xml,text/xml,application/xml,.txt" />
+        </div>
+        <div class="stack-slot" data-slot="4" id="stackSlot4">
+          <div class="slot-label">Profile 5</div>
+          <div class="slot-empty">Drop XML or click to add<br><span style="opacity:0.7">e.g. source 2 / drapes</span></div>
+          <div class="slot-meta" style="display:none"></div>
+          <input type="file" accept=".xml,text/xml,application/xml,.txt" />
+        </div>
+        <div class="stack-slot" data-slot="5" id="stackSlot5">
+          <div class="slot-label">Profile 6</div>
+          <div class="slot-empty">Drop XML or click to add<br><span style="opacity:0.7">e.g. masking</span></div>
+          <div class="slot-meta" style="display:none"></div>
+          <input type="file" accept=".xml,text/xml,application/xml,.txt" />
+        </div>
+      </div>
+
+      <div class="stack-actions">
+        <button type="button" class="btn btn-secondary" id="stackAnalyzeBtn" disabled>Compare stack</button>
+        <button type="button" class="btn btn-secondary" id="stackClearBtn">Clear all</button>
+      </div>
+
+      <div class="stack-results" id="stackResults">
+        <div class="card diagram">
+          <h3>Stack timing diagram</h3>
+          <div class="profile-diagram-wrap" id="stackDiagram"></div>
+          <p class="profile-diagram-caption" id="stackDiagramCaption"></p>
+        </div>
+
+        <div class="card diagram">
+          <h3>Preferable interconnections</h3>
+          <div class="profile-diagram-wrap" id="stackInterconnectDiagram"></div>
+          <p class="profile-diagram-caption" id="stackInterconnectCaption"></p>
+        </div>
+
+        <div class="card field" id="stackInteractCard">
+          <h3>How these profiles interact <span class="badge" style="background:rgba(249,115,22,0.15);color:#fb923c;">attention</span></h3>
+          <ul class="field-list" id="stackInteractList"></ul>
+        </div>
+
+        <div class="card features" id="stackServicesCard">
+          <h3>Services realized when these profiles interact</h3>
+          <div id="stackServicesContent"></div>
+        </div>
+
+        <div class="card summary" id="stackSummaryCard">
+          <h3>Stack summary</h3>
+          <div class="explanation" id="stackSummaryText"></div>
+        </div>
+      </div>
+    </div><!-- /viewStack -->
+
+    <div class="view" id="viewCase">
+      <div class="case-hero">
+        <h2>Case study: Theater zone startup</h2>
+        <p>
+          A multi-device theater is the clearest reason to read profiles — not only to “make the zone work in the UI,”
+          but to understand timing, state gates, the <strong>control backbone</strong> (host + extenders), and what the
+          homeowner experiences on a real On / Off.
+        </p>
+      </div>
+
+      <div class="case-section">
+        <h3>The problem</h3>
+        <p>
+          Many configs are signed off when sources switch and power toggles in the app. The end user lives with something else:
+          accidental zone Off, On again too fast, processor still booting, display still warming, speakers already “on,”
+          drapes moving, masking changing — and a black or silent room for a minute while the UI already says active.
+        </p>
+        <div class="case-callout">
+          <strong>UI active ≠ path ready.</strong> Profile delays and zone logic decide when picture and sound are actually good.
+        </div>
+      </div>
+
+      <div class="case-section">
+        <h3>Control backbone (host + extender)</h3>
+        <p>
+          Device profiles define <em>what</em> to send. The Savant host and control extenders decide <em>where</em> those
+          commands leave the system. Theater gear is not controlled in isolation.
+        </p>
+        <table class="case-table">
+          <thead>
+            <tr>
+              <th>Piece</th>
+              <th>Example</th>
+              <th>Role in the theater</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Host</strong></td>
+              <td>Pro Host (SVR-xxxx)</td>
+              <td>Runs Blueprint: services, state, <strong>triggers</strong>, <strong>Automator workflows</strong>, UI. Owns timing logic and LTC lighting/shades when used.</td>
+            </tr>
+            <tr>
+              <td><strong>Control extender</strong></td>
+              <td>SmartControl 12 (SSC-0012)</td>
+              <td>Network I/O brick: <strong>RS-232</strong>, <strong>IR</strong>, <strong>GPIO</strong>, <strong>relays</strong>. Host assigns device control paths to these ports.</td>
+            </tr>
+            <tr>
+              <td><strong>Endpoints</strong></td>
+              <td>Main processor, Meridian speakers, display, sources, drapes, masking</td>
+              <td>Profiles with Power On waits and preferred transport (IP / RS-232 / IR / contact). Slow path (main processor + display) still owns “ready.”</td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="margin-top:0.75rem;">
+          Preferable command path:
+        </p>
+        <div class="timeline">
+          <div><strong>Host</strong> evaluates zone / service / workflow / trigger</div>
+          <div><strong>IP devices</strong> — host talks on the LAN (may never use an extender)</div>
+          <div><strong>RS-232 / IR / relay devices</strong> — host → extender port → copper to the device</div>
+          <div><strong>Profiles</strong> supply the bytes, delays, and state gates; extender only provides the jack</div>
+        </div>
+        <div class="case-callout">
+          <strong>First-On serial failures</strong> are often port binding, baud, or wiring on the extender — not the host “forgetting” Power On.
+          IP failures are often subnet, port, or sending commands before the device finished booting.
+        </div>
+      </div>
+
+      <div class="case-section">
+        <h3>Example stack (roles only)</h3>
+        <table class="case-table">
+          <thead>
+            <tr>
+              <th>Role</th>
+              <th>Typical profile timing</th>
+              <th>Why it matters</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>AV processor</td>
+              <td>~60 s after wake / WoL</td>
+              <td>Main theater processor — routing / profiles; slowest “brain”</td>
+            </tr>
+            <tr>
+              <td>Projector / display</td>
+              <td>~40–60 s warm-up</td>
+              <td>Image path; input commands often race warm-up</td>
+            </tr>
+            <tr>
+              <td>Speaker controller (e.g. Meridian 271)</td>
+              <td>~3 s On / ~2 s Off (standby)</td>
+              <td><strong>Zone trigger</strong> On when theater active, Off when inactive — not source PowerOn. IP preferred (e.g. TCP 9014). Ready long before processor/display.</td>
+            </tr>
+            <tr>
+              <td>Streaming source</td>
+              <td>~3 s</td>
+              <td>Fast; not the bottleneck</td>
+            </tr>
+            <tr>
+              <td>Movie server source</td>
+              <td>~5 s leave-standby</td>
+              <td>Standby vs cold off is different</td>
+            </tr>
+            <tr>
+              <td>Drapes (momentary relay)</td>
+              <td>~0.5 s pulse</td>
+              <td>Environment via extender relay; not AV power state</td>
+            </tr>
+            <tr>
+              <td>Screen masking</td>
+              <td>Command + motion time</td>
+              <td>Often delayed until stack is up (13 s video + 65 s zone)</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="case-callout">
+          <strong>Two “processors,” two jobs:</strong> the main AV processor owns video/audio routing and source profiles.
+          The Meridian-class unit is the <strong>speaker / volume path</strong>. Do not treat Meridian ready as “theater ready.”
+        </div>
+      </div>
+
+      <div class="case-section">
+        <h3>How the theater operates</h3>
+        <p>
+          When the homeowner turns the theater zone on (or picks a source that activates the zone), the host runs
+          <strong>parallel paths</strong> — not one long serial script.
+        </p>
+        <ul>
+          <li><strong>Zone becomes active</strong> — Custom trigger sends Meridian <strong>PowerOn</strong> (<code>#MSR ON</code>, ~3 s). Same trigger’s Else on inactive sends <strong>PowerOff</strong> (<code>#MSR SB</code> standby, ~2 s). Drapes open (relay pulse). Optional delayed Fullscreen (~65 s).</li>
+          <li><strong>Source service PowerOn</strong> — Automator for that source: source power, main processor LoadProfile / input, display power + input (often non-blocking steps).</li>
+          <li><strong>Video service active</strong> — Separate trigger fires Fullscreen after ~<strong>13 s</strong> (picture position + mask preset) — a deliberate mid–warm-up window (see below).</li>
+        </ul>
+        <p>
+          Speakers can be up while the picture is still black. That is expected. Judge path ready after the
+          <strong>main processor + display</strong> slow path (~60–65 s), not when Meridian ACKs On.
+        </p>
+      </div>
+
+      <div class="case-section">
+        <h3>Layers of startup logic</h3>
+        <p>A solid theater On usually splits work like this:</p>
+        <ul>
+          <li><strong>Zone trigger</strong> (<code>ZoneIsActive</code>) — <strong>Meridian / speakers On</strong>, drapes open, optional processor wake, and a <strong>delayed</strong> masking action (e.g. ~65 s). On inactive: Meridian Off (standby), drapes close.</li>
+          <li><strong>Source PowerOn workflow</strong> — that source’s power, main processor <em>profile/input</em>, display power, display input select.</li>
+          <li><strong>Video trigger</strong> (stream / movie server / disc service active) — “Fullscreen” after ~<strong>13 s</strong>. Often runs before the zone’s 65 s call.</li>
+        </ul>
+        <p>
+          Zone + source workflow fire near the same time (often non-blocking). “Fullscreen” can fire twice by design.
+          Real AV readiness still follows the slowest profiles (main processor + display), not Meridian and not the first mask move.
+        </p>
+        <div class="case-callout">
+          <strong>Why ~13 s for Fullscreen (not ~60 s):</strong> After the display Power On is sent, the host often waits on
+          <em>projector feedback / profile completion</em> for a long window (on the order of the warm-up — ~60 s). Waiting
+          that full cycle before masking is too late for a good room feel. Field testing found a practical window at
+          about <strong>13 seconds</strong>: the host can still accept and fire a <strong>service/zone trigger mid projector
+          power-up wait</strong>, so picture position + ShadePreset run while the lamp is still coming up — without editing
+          the vendor profile’s long Power On delay. Re-check this timing if the projector profile or firmware changes.
+        </div>
+        <div class="case-callout">
+          <strong>What “Fullscreen (16:9)” actually runs:</strong> a custom Automator workflow with two non-blocking steps —
+          (1) display <code>SetPicturePosition1.85:1</code> (lens/picture memory), and
+          (2) screen controller <code>ShadePreset</code> address <strong>1.1.0</strong>, <strong>preset 3</strong>.
+          Service name says 16:9; projector action is 1.85:1. Preset 3 must be taught on the screen controller as the full mask.
+        </div>
+      </div>
+
+      <div class="case-section">
+        <h3>Line diagram — theater On sequence</h3>
+        <p style="margin-bottom:0.35rem;color:var(--text-muted);font-size:0.9rem;">
+          Horizontal axis is time after zone / source On. Bars show when each role is commanded vs when it is actually ready per profile timing.
+          Masking has <strong>two</strong> triggers — <strong>13 s</strong> is a field-tested mid–warm-up window (host still in projector Power On wait); <strong>65 s</strong> re-asserts after the slow path.
+        </p>
+
+        <div class="diagram-wrap" role="img" aria-label="Theater startup timeline diagram">
+          <svg viewBox="0 0 720 340" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono, ui-monospace, monospace">
+            <!-- grid -->
+            <defs>
+              <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1a2332" stroke-width="1"/>
+              </pattern>
+            </defs>
+            <rect x="130" y="28" width="560" height="260" fill="url(#grid)" opacity="0.5"/>
+
+            <!-- time axis -->
+            <line x1="130" y1="290" x2="690" y2="290" stroke="#2f3f55" stroke-width="1.5"/>
+            <!-- ticks: 0, 10, 13, 20, 30, 40, 50, 60, 65 -->
+            <g fill="#5a6a82" font-size="10" text-anchor="middle">
+              <line x1="130" y1="290" x2="130" y2="296" stroke="#2f3f55"/>
+              <text x="130" y="310">0s</text>
+              <line x1="214" y1="290" x2="214" y2="296" stroke="#2f3f55"/>
+              <text x="214" y="310">10s</text>
+              <!-- 13s marked -->
+              <line x1="239" y1="290" x2="239" y2="296" stroke="#f97316"/>
+              <text x="239" y="310" fill="#fb923c">13s</text>
+              <line x1="298" y1="290" x2="298" y2="296" stroke="#2f3f55"/>
+              <text x="298" y="310">20s</text>
+              <line x1="382" y1="290" x2="382" y2="296" stroke="#2f3f55"/>
+              <text x="382" y="310">30s</text>
+              <line x1="466" y1="290" x2="466" y2="296" stroke="#2f3f55"/>
+              <text x="466" y="310">40s</text>
+              <line x1="550" y1="290" x2="550" y2="296" stroke="#2f3f55"/>
+              <text x="550" y="310">50s</text>
+              <line x1="634" y1="290" x2="634" y2="296" stroke="#2f3f55"/>
+              <text x="634" y="310">60s</text>
+              <line x1="676" y1="290" x2="676" y2="296" stroke="#f97316"/>
+              <text x="676" y="310" fill="#fb923c">65s</text>
+            </g>
+
+            <!-- vertical guide at 13s (video/source masking) -->
+            <line x1="239" y1="28" x2="239" y2="290" stroke="#f97316" stroke-width="1.25" stroke-dasharray="4 3" opacity="0.85"/>
+            <!-- vertical guide at 65s (zone masking) -->
+            <line x1="676" y1="28" x2="676" y2="290" stroke="#f97316" stroke-width="1" stroke-dasharray="4 3" opacity="0.55"/>
+
+            <!-- UI active marker -->
+            <line x1="155" y1="28" x2="155" y2="290" stroke="#3dd68c" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>
+            <text x="158" y="40" fill="#3dd68c" font-size="9">UI often active</text>
+
+            <!-- Row labels -->
+            <g fill="#7d8da6" font-size="11" text-anchor="end">
+              <text x="122" y="58">Drapes</text>
+              <text x="122" y="90">Meridian</text>
+              <text x="122" y="122">Source</text>
+              <text x="122" y="154">Processor</text>
+              <text x="122" y="186">Display</text>
+              <text x="122" y="218">Masking</text>
+              <text x="122" y="258">Zone ready</text>
+            </g>
+
+            <!-- Drapes: pulse ~0.5s -->
+            <rect x="130" y="46" width="12" height="14" rx="2" fill="#a78bfa"/>
+            <text x="148" y="57" fill="#a78bfa" font-size="9">pulse</text>
+
+            <!-- Meridian speakers: zone trigger at 0, ready ~3s -->
+            <rect x="130" y="78" width="6" height="14" rx="2" fill="#60a5fa" opacity="0.45"/>
+            <rect x="130" y="78" width="28" height="14" rx="2" fill="none" stroke="#60a5fa" stroke-width="1.5"/>
+            <circle cx="158" cy="85" r="3.5" fill="#60a5fa"/>
+            <text x="166" y="89" fill="#60a5fa" font-size="9">zone trig · ~3s</text>
+
+            <!-- Source: command 0, ready ~3-5s -->
+            <rect x="130" y="110" width="6" height="14" rx="2" fill="#00d4ff" opacity="0.45"/>
+            <rect x="130" y="110" width="40" height="14" rx="2" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
+            <circle cx="170" cy="117" r="3.5" fill="#00d4ff"/>
+            <text x="178" y="121" fill="#00d4ff" font-size="9">ready ~3–5s</text>
+
+            <!-- Processor: command 0, boot to ~60s -->
+            <rect x="130" y="142" width="6" height="14" rx="2" fill="#f5a623" opacity="0.45"/>
+            <rect x="130" y="142" width="504" height="14" rx="2" fill="rgba(245,166,35,0.15)" stroke="#f5a623" stroke-width="1.5"/>
+            <circle cx="634" cy="149" r="3.5" fill="#f5a623"/>
+            <text x="400" y="153" fill="#f5a623" font-size="9">boot / WoL wait ~60s</text>
+
+            <!-- Display: command 0, warm-up ~40-60s -->
+            <rect x="130" y="174" width="6" height="14" rx="2" fill="#fb923c" opacity="0.45"/>
+            <rect x="130" y="174" width="420" height="14" rx="2" fill="rgba(249,115,22,0.12)" stroke="#fb923c" stroke-width="1.5"/>
+            <line x1="145" y1="174" x2="145" y2="188" stroke="#fb923c" stroke-width="2"/>
+            <text x="150" y="170" fill="#fb923c" font-size="8">input cmd</text>
+            <circle cx="550" cy="181" r="3.5" fill="#fb923c"/>
+            <text x="360" y="185" fill="#fb923c" font-size="9">warm-up ~40–60s</text>
+
+            <!-- Fullscreen workflow: primary 13s (video), secondary 65s (zone) = pic pos 1.85 + shade preset 3 -->
+            <rect x="232" y="206" width="14" height="14" rx="2" fill="#f97316"/>
+            <text x="250" y="211" fill="#fb923c" font-size="9">1st ~13s video</text>
+            <text x="250" y="223" fill="#7d8da6" font-size="8">1.85:1 + preset 3</text>
+            <rect x="670" y="206" width="14" height="14" rx="2" fill="#f97316" opacity="0.55"/>
+            <text x="555" y="211" fill="#fb923c" font-size="9" opacity="0.9">2nd ~65s zone</text>
+            <text x="555" y="223" fill="#7d8da6" font-size="8">same workflow</text>
+
+            <!-- Zone ready band -->
+            <rect x="634" y="242" width="56" height="22" rx="3" fill="rgba(61,214,140,0.2)" stroke="#3dd68c" stroke-width="1.5"/>
+            <text x="642" y="257" fill="#3dd68c" font-size="10" font-weight="600">READY</text>
+
+            <text x="130" y="22" fill="#5a6a82" font-size="10">← zone trigger (Meridian + drapes) + source workflow near t=0 · masking from video + zone triggers</text>
+          </svg>
+        </div>
+
+        <div class="diagram-legend">
+          <span><i style="background:#a78bfa"></i> Drapes (momentary)</span>
+          <span><i style="background:#60a5fa"></i> Meridian (zone trigger)</span>
+          <span><i style="background:#00d4ff"></i> Source</span>
+          <span><i style="background:#f5a623"></i> Main processor (slow)</span>
+          <span><i style="background:#fb923c"></i> Display (slow)</span>
+          <span><i style="background:#f97316"></i> Masking (2 triggers)</span>
+          <span><i style="background:#3dd68c"></i> Path ready</span>
+        </div>
+
+        <div class="timeline" style="margin-top:1.1rem;">
+          <div><strong>t ≈ 0</strong> — Zone active: <strong>Meridian PowerOn</strong> (zone trigger), drapes open, optional main-processor wake</div>
+          <div><strong>t ≈ 0</strong> — Source workflow: source On, main processor LoadProfile, display On + input</div>
+          <div><strong>t ≈ 3 s</strong> — Meridian path up (speakers); UI may already show active</div>
+          <div><strong>t ≈ 3–5 s</strong> — Source up; still waiting on processor + display</div>
+          <div><strong>t ≈ 13 s</strong> — <strong>Fullscreen workflow</strong> (video trigger): picture position <strong>1.85:1</strong> + <strong>ShadePreset 3</strong> — mid–warm-up window while host is still in projector power-up wait</div>
+          <div><strong>t ≈ 40–60 s</strong> — Display warm-up / profile feedback finishing; main processor boot finishing</div>
+          <div><strong>t ≈ 65 s</strong> — Same Fullscreen workflow again (zone trigger — re-assert after slow path)</div>
+          <div><strong>Zone inactive</strong> — Trigger Else: Meridian PowerOff (standby), drapes close; confirm display/processor Off elsewhere</div>
+        </div>
+        <div class="case-callout">
+          <strong>Two paths, one workflow:</strong> ~13 s (video source active) and ~65 s (zone active) both call the same Automator —
+          display <strong>1.85:1</strong> picture position + screen controller <strong>preset 3</strong>.
+          The 13 s path is intentional: host can fire the trigger <strong>during</strong> the long projector Power On / feedback wait
+          so masking is not stuck behind a full ~60 s profile completion. Second (~65 s) run can re-assert after the slow path.
+          Judge true AV readiness after ~60–65 s, not when Meridian is On or the mask first moves.
+        </div>
+      </div>
+
+      <div class="case-section">
+        <h3>What profiles teach you (so you can fine-tune)</h3>
+        <ol>
+          <li><strong>Who is slow</strong> — Put zone order and delays around the <em>main</em> processor and display, not around the streamer or Meridian.</li>
+          <li><strong>Speaker controller ownership</strong> — Meridian On/Off belongs on a <strong>zone state trigger</strong>, not buried only in one source’s PowerOn. Else branch on inactive is required.</li>
+          <li><strong>State gates</strong> — Power On may be skipped if Savant thinks the device is already on (Meridian and others). Fast off→on fails here.</li>
+          <li><strong>Standby vs off</strong> — Meridian Off is often standby (<code>#MSR SB</code>); sources may only leave standby. Full rack cycle is a different path.</li>
+          <li><strong>Input mapping / Device ID / login</strong> — Meridian notes: logical inputs are unassigned by default. Other profiles may require Device ID or login — treat profile notes as install requirements, not optional reading.</li>
+          <li><strong>Momentary vs latched</strong> — Drapes pulse; they are not a power state machine like a projector.</li>
+          <li><strong>Off path completeness</strong> — Zone Off may only close drapes and power Meridian. Confirm display and main processor Off live somewhere, or the room stays lit.</li>
+          <li><strong>Transport vs logic</strong> — Meridian preferred IP (e.g. port 9014) is host→LAN. RS-232 / IR / contact devices must match Blueprint port assignment on host or extender.</li>
+        </ol>
+      </div>
+
+      <div class="case-section">
+        <h3>Host tools: custom workflows &amp; triggers</h3>
+        <p>
+          The host is where you go beyond “profile defaults.” Useful patterns for a theater:
+        </p>
+        <ul>
+          <li><strong>Service PowerOn / PowerOff workflows (Automator)</strong> — Source-specific chains: power display, LoadProfile on the main processor, set input, non-blocking steps. Keep one workflow per source so HDMI routing stays correct.</li>
+          <li><strong>Zone state triggers</strong> — Watch <code>ZoneIsActive</code>: <strong>Then</strong> → Meridian PowerOn, drapes open (and any room-level cues); <strong>Else</strong> → Meridian PowerOff, drapes close. Speakers follow the room, not a single source.</li>
+          <li><strong>Service state triggers</strong> — Watch a video service <code>ServiceIsActive</code> (stream / movie server / disc) for aspect/masking. <strong>After Delay ~13 s</strong> on Fullscreen is a field-tuned mid–warm-up window: the host will still run the trigger while the projector profile is in its long Power On / feedback wait (~60 s class).</li>
+          <li><strong>After Delay on actions</strong> — Host-side delay (13 s and/or 65 s) without editing vendor projector XML. Prefer this for masking so profile updates do not wipe timing; re-validate 13 s if projector firmware or profile delays change.</li>
+          <li><strong>Shared custom workflows</strong> — One “Fullscreen” workflow called from multiple triggers so picture position + shade preset stay in sync.</li>
+          <li><strong>Else branches</strong> — Explicit Off/reset when state goes false (Meridian standby, close drapes, mask reset). Missing Else is a common “room never restores” bug.</li>
+        </ul>
+        <div class="case-callout">
+          <strong>Prefer host logic over profile hacks</strong> when possible: triggers and Automator survive device profile updates better than hand-edited PowerOn delays inside third-party XML.
+        </div>
+      </div>
+
+      <div class="case-section">
+        <h3>How to use Profile Decoder on a job</h3>
+        <ul>
+          <li>Drop each <strong>endpoint</strong> profile and read <strong>Field implications</strong>, power max waits, and preferred transport (IP / RS-232 / IR / contact).</li>
+          <li>List the slow path (≥ ~10–15 s) and design zone/workflow delays around it.</li>
+          <li>For RS-232 / IR / relay devices, confirm <strong>which host or SmartControl port</strong> is assigned in Blueprint — the profile does not name the physical jack.</li>
+          <li>Compare source PowerOn workflows to zone triggers: what is missing on Off? What races warm-up?</li>
+          <li>Use host <strong>triggers + Automator</strong> for custom timing and environment; edit profiles only when the vendor definition is wrong for the site.</li>
+        </ul>
+        <p style="margin-top:0.85rem;color:var(--text-muted);">
+          The goal is not a longer config — it is a zone that survives real use: accidental Off, impatient On, and the first show of the night after a cold rack — with control paths that actually reach the hardware.
+        </p>
+      </div>
+    </div><!-- /viewCase -->
 
     <div class="contact-card" id="contact">
       <h3>Contact / Developer</h3>
@@ -661,7 +1634,7 @@
     <footer>
       <div>© 2026 George Carrillo · Profile Decoder</div>
       <div>Licensed under the <a href="#license-notice" id="licenseLink">MIT License</a></div>
-      <div style="margin-top:0.5rem;opacity:0.85;">client-side only · no data leaves this browser · v1</div>
+      <div style="margin-top:0.5rem;opacity:0.85;">client-side only · no data leaves this browser · v1.1</div>
     </footer>
 
     <div id="license-notice" style="display:none;"></div>
@@ -681,6 +1654,105 @@
     const rawSize = document.getElementById('rawSize');
 
     let rawVisible = false;
+
+    // ── Field stopwatches (persist across tabs) ──
+    const fieldTimers = [
+      { elapsed: 0, running: false, startedAt: 0, raf: null },
+      { elapsed: 0, running: false, startedAt: 0, raf: null },
+      { elapsed: 0, running: false, startedAt: 0, raf: null }
+    ];
+
+    function formatTimer(ms) {
+      const totalSec = Math.floor(ms / 1000);
+      const m = Math.floor(totalSec / 60);
+      const s = totalSec % 60;
+      const tenths = Math.floor((ms % 1000) / 100);
+      return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0') + '.' + tenths;
+    }
+
+    function timerNow(i) {
+      const t = fieldTimers[i];
+      if (!t.running) return t.elapsed;
+      return t.elapsed + (performance.now() - t.startedAt);
+    }
+
+    function paintTimer(i) {
+      const el = document.getElementById('timerDisplay' + i);
+      if (el) el.textContent = formatTimer(timerNow(i));
+    }
+
+    function tickTimer(i) {
+      paintTimer(i);
+      if (fieldTimers[i].running) {
+        fieldTimers[i].raf = requestAnimationFrame(function() { tickTimer(i); });
+      }
+    }
+
+    function setTimerRunningUi(i, running) {
+      const unit = document.getElementById('timerUnit' + i);
+      const btn = unit && unit.querySelector('[data-timer-action="toggle"]');
+      if (unit) unit.classList.toggle('running', running);
+      if (btn) {
+        btn.textContent = running ? 'Stop' : 'Start';
+        btn.classList.toggle('is-stop', running);
+      }
+    }
+
+    function startTimer(i) {
+      const t = fieldTimers[i];
+      if (t.running) return;
+      t.running = true;
+      t.startedAt = performance.now();
+      setTimerRunningUi(i, true);
+      tickTimer(i);
+    }
+
+    function stopTimer(i) {
+      const t = fieldTimers[i];
+      if (!t.running) return;
+      t.elapsed = timerNow(i);
+      t.running = false;
+      t.startedAt = 0;
+      if (t.raf) cancelAnimationFrame(t.raf);
+      t.raf = null;
+      setTimerRunningUi(i, false);
+      paintTimer(i);
+    }
+
+    function resetTimer(i) {
+      stopTimer(i);
+      fieldTimers[i].elapsed = 0;
+      paintTimer(i);
+    }
+
+    function toggleTimer(i) {
+      if (fieldTimers[i].running) stopTimer(i);
+      else startTimer(i);
+    }
+
+    document.getElementById('timerBar')?.addEventListener('click', function(e) {
+      const btn = e.target.closest('[data-timer-action]');
+      if (!btn) return;
+      const i = parseInt(btn.getAttribute('data-timer'), 10);
+      if (isNaN(i) || i < 0 || i > 2) return;
+      const action = btn.getAttribute('data-timer-action');
+      if (action === 'toggle') toggleTimer(i);
+      else if (action === 'reset') resetTimer(i);
+    });
+
+    // View tabs
+    document.querySelectorAll('.nav-tab').forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        const view = tab.getAttribute('data-view');
+        document.querySelectorAll('.nav-tab').forEach(function(t) { t.classList.remove('active'); });
+        document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
+        tab.classList.add('active');
+        const map = { decoder: 'viewDecoder', case: 'viewCase', stack: 'viewStack' };
+        const el = document.getElementById(map[view] || 'viewDecoder');
+        if (el) el.classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
 
     // License notice
     document.getElementById('licenseLink')?.addEventListener('click', (e) => {
@@ -748,6 +1820,7 @@
     copyBtn.addEventListener('click', () => {
       const parts = [
         document.getElementById('summaryText').innerText,
+        document.getElementById('fieldContent')?.innerText || '',
         document.getElementById('powerContent')?.innerText || '',
         document.getElementById('inputsContent')?.innerText || '',
         document.getElementById('commContent')?.innerText || '',
@@ -779,6 +1852,38 @@
       reader.readAsText(file);
     }
 
+    function formatSeconds(ms) {
+      const n = parseInt(ms, 10);
+      if (isNaN(n) || n <= 0) return null;
+      if (n < 1000) return (n / 1000).toFixed(1) + 's';
+      const s = n / 1000;
+      if (s >= 60) {
+        const m = Math.floor(s / 60);
+        const rem = Math.round(s % 60);
+        return rem ? m + 'm ' + rem + 's' : m + 'm';
+      }
+      return (s % 1 === 0 ? s.toFixed(0) : s.toFixed(1)) + 's';
+    }
+
+    function maxDelayInAction(actionEl) {
+      if (!actionEl) return 0;
+      let max = 0;
+      actionEl.querySelectorAll('delay').forEach(function(d) {
+        const v = parseInt(d.getAttribute('ms_delay') || '0', 10);
+        if (v > max) max = v;
+      });
+      return max;
+    }
+
+    function totalDelayInAction(actionEl) {
+      if (!actionEl) return 0;
+      let sum = 0;
+      actionEl.querySelectorAll('delay').forEach(function(d) {
+        sum += parseInt(d.getAttribute('ms_delay') || '0', 10);
+      });
+      return sum;
+    }
+
     function processProfile(doc, rawText, file) {
       dropZone.style.display = 'none';
       results.classList.add('visible');
@@ -793,6 +1898,7 @@
       const model = root.getAttribute('model') || 'Unknown';
       const deviceClass = root.getAttribute('device_class') || '';
       const rpmVersion = root.getAttribute('rpm_xml_version') || '';
+      const alias = root.getAttribute('alias') || '';
 
       document.getElementById('deviceModel').textContent = model;
       document.getElementById('deviceManufacturer').textContent =
@@ -802,23 +1908,401 @@
       metaGrid.innerHTML = '';
       addMeta(metaGrid, 'Class', deviceClass || '—');
       addMeta(metaGrid, 'RPM', rpmVersion || '—');
+      if (alias) addMeta(metaGrid, 'Alias', alias);
       addMeta(metaGrid, 'Schema', 'RacePoint');
 
       const notesEl = root.querySelector('notes');
       const notesCard = document.getElementById('notesCard');
-      if (notesEl && notesEl.textContent.trim()) {
+      const notesText = notesEl ? notesEl.textContent.trim() : '';
+      if (notesText) {
         notesCard.style.display = 'block';
         document.getElementById('notesContent').innerHTML =
-          '<div class="notes-box">' + escapeHtml(notesEl.textContent.trim()) + '</div>';
+          '<div class="notes-box">' + escapeHtml(notesText) + '</div>';
       } else {
         notesCard.style.display = 'none';
       }
 
+      const powerAnalysis = analyzePower(root);
+
       renderCommunication(root);
       renderInputs(root);
-      renderPower(root);
+      renderPower(root, powerAnalysis);
+      renderTimingDiagram(root, powerAnalysis, { manufacturer, model, deviceClass });
+      renderServices(root, { manufacturer, model, deviceClass });
       renderFeatures(root);
-      renderSummary(root, { manufacturer, model, deviceClass });
+      renderFieldImplications(root, powerAnalysis, notesText, { manufacturer, model, deviceClass });
+      renderSummary(root, powerAnalysis, { manufacturer, model, deviceClass });
+    }
+
+    function humanizeServiceType(rt) {
+      if (!rt) return 'Unknown';
+      const map = {
+        'AV_MONITOR_SINK': 'Display / monitor sink',
+        'AV_TV_SINK': 'TV sink',
+        'AV_VIDEOPROCESSOR_FUNCTION': 'Video processor',
+        'AV_VIDEOSWITCH_FUNCTION': 'Video switch',
+        'AV_AUDIOSWITCH_FUNCTION': 'Audio switch',
+        'AV_VOLUMECONTROL_FUNCTION': 'Volume control',
+        'AV_SURROUNDSOUNDPROCESSOR_FUNCTION': 'Surround processor',
+        'AV_STEREOPROCESSOR_FUNCTION': 'Stereo processor',
+        'AV_DIGITALAUDIO_SOURCE': 'Digital audio source',
+        'AV_AUDIO_SOURCE': 'Audio source',
+        'AV_DIGITALVIDEO_SOURCE': 'Digital video source',
+        'AV_EXTERNALMEDIASERVER': 'External media server',
+        'AV_APPLEREMOTEMEDIASERVER': 'Apple remote media server',
+        'AV_ENHANCEDDVD': 'Enhanced DVD / disc',
+        'AV_AVR_FUNCTION': 'AVR function',
+        'AV_RECEIVER_FUNCTION': 'Receiver function',
+        'ENV_SHADECONTROLLER_SOURCE': 'Shade controller',
+        'ENV_LIGHTINGCONTROLLER_SOURCE': 'Lighting controller',
+        'ENV_FANCONTROLLER_SOURCE': 'Fan controller',
+        'ENV_AV_DOORBELL_SOURCE': 'Doorbell source',
+        'INFO_RPMOSD_SOURCE': 'OSD source',
+        'COMM_P2P_INTERCOM_FUNCTION': 'P2P intercom',
+        'SVC_AV_APPLEREMOTEMEDIASERVER': 'Apple TV media service',
+        'SVC_AV_EXTERNALMEDIASERVER': 'External media service',
+        'SVC_AV_ENHANCEDDVD': 'Disc player service',
+        'SVC_GEN_GENERIC': 'Generic service'
+      };
+      if (map[rt]) return map[rt];
+      // Generic humanize AV_FOO_BAR → Foo bar
+      return rt.replace(/^AV_/, '').replace(/^ENV_/, 'Env · ').replace(/^INFO_/, 'Info · ')
+        .replace(/^COMM_/, 'Comm · ').replace(/^SVC_/, 'Svc · ')
+        .replace(/_/g, ' ').replace(/\s+/g, ' ').trim();
+    }
+
+    function serviceRoutingHint(rt, deviceClass, preferred) {
+      const r = (rt || '').toUpperCase();
+      const pref = (preferred || '').toLowerCase();
+      if (/MONITOR_SINK|TV_SINK|VIDEOPROCESSOR/.test(r)) {
+        return 'Prefer HDMI (or SDI) video path into this sink; control via ' +
+          (pref === 'rs232' ? 'RS-232 on host/extender' : pref === 'ir' ? 'IR emitter' : pref === 'ip' ? 'IP on LAN' : 'profile transport') +
+          '. Route sources through the processor when present, not directly past it.';
+      }
+      if (/VIDEOSWITCH/.test(r)) {
+        return 'Video matrix/switch services — map logical inputs in Blueprint; preferred interconnect is HDMI/AV into this device, then out to displays.';
+      }
+      if (/AUDIOSWITCH|VOLUMECONTROL|SURROUND|STEREOPROCESSOR|AVR|RECEIVER/.test(r)) {
+        return 'Audio path should land on this device for volume/surround. Prefer processor as zone volume endpoint; speakers/amps downstream.';
+      }
+      if (/MEDIASERVER|DIGITALVIDEO_SOURCE|DIGITALAUDIO_SOURCE|AUDIO_SOURCE|ENHANCEDDVD|APPLE/.test(r)) {
+        return 'Source service — output HDMI/AV toward the processor (or display if no processor). Keep PowerOn workflow source-specific.';
+      }
+      if (/SHADE/.test(r)) {
+        return 'Environment, not HDMI. Control via IP/RS-232/contact as profile prefers; pair with display picture-position workflows when masking.';
+      }
+      if (/LIGHTING|FAN|DOORBELL|INTERCOM|OSD/.test(r)) {
+        return 'Host/environment service — usually not in the theater HDMI chain; driven by host resources or triggers.';
+      }
+      return 'Confirm media interconnect in Blueprint matches this service role; control uses the profile preferred transport.';
+    }
+
+    function extractServices(root) {
+      const counts = {};
+      const actionCounts = {};
+      // resources on media interfaces
+      Array.from(root.querySelectorAll('resource[resource_type]')).forEach(function(el) {
+        const rt = el.getAttribute('resource_type');
+        if (!rt) return;
+        counts[rt] = (counts[rt] || 0) + 1;
+      });
+      // resource_component_actions blocks
+      Array.from(root.querySelectorAll('resource_component_actions[resource_type]')).forEach(function(el) {
+        const rt = el.getAttribute('resource_type');
+        if (!rt) return;
+        counts[rt] = counts[rt] || 0;
+        const n = el.querySelectorAll('action').length;
+        actionCounts[rt] = (actionCounts[rt] || 0) + n;
+      });
+      // also scan any resource_type attributes elsewhere
+      Array.from(root.querySelectorAll('[resource_type]')).forEach(function(el) {
+        const rt = el.getAttribute('resource_type');
+        if (!rt) return;
+        if (counts[rt] === undefined) counts[rt] = 0;
+      });
+
+      return Object.keys(counts).sort().map(function(rt) {
+        return {
+          type: rt,
+          label: humanizeServiceType(rt),
+          resourceMarks: counts[rt],
+          actions: actionCounts[rt] || 0
+        };
+      });
+    }
+
+    function renderServices(root, info) {
+      const listCard = document.getElementById('servicesCard');
+      const listContent = document.getElementById('servicesContent');
+      const diagCard = document.getElementById('servicesDiagramCard');
+      const diagHost = document.getElementById('servicesDiagram');
+      const diagCap = document.getElementById('servicesDiagramCaption');
+      if (!listCard) return;
+
+      const services = extractServices(root);
+      const ci = root.querySelector('control_interfaces');
+      const preferred = ci ? (ci.getAttribute('preferred') || '') : '';
+      const prefLabel = preferred ? preferred.replace(/_/g, ' ').toUpperCase() : '—';
+
+      if (!services.length) {
+        listCard.style.display = 'none';
+        if (diagCard) diagCard.style.display = 'none';
+        return;
+      }
+
+      listCard.style.display = 'block';
+      let html = '<p style="color:var(--text-muted);font-size:0.88rem;margin-bottom:0.65rem;">RacePoint <code>resource_type</code> entries this profile can contribute as Savant services / functions. Counts are declarations in the XML, not Blueprint zone instances.</p>';
+      html += '<ul>';
+      services.forEach(function(s) {
+        html += '<li><strong>' + escapeHtml(s.label) + '</strong> <span style="color:var(--text-dim);font-family:IBM Plex Mono,monospace;font-size:0.75rem;">' +
+          escapeHtml(s.type) + '</span>';
+        if (s.actions) html += ' · ' + s.actions + ' action(s)';
+        html += '<br><span style="color:var(--text-muted);font-size:0.84rem;">' +
+          escapeHtml(serviceRoutingHint(s.type, info.deviceClass, preferred)) + '</span></li>';
+      });
+      html += '</ul>';
+      listContent.innerHTML = html;
+
+      // Diagram: device center, services as nodes with routing comments
+      if (!diagCard || !diagHost) return;
+      const modelShort = (info.model || 'Device').length > 20 ? (info.model || 'Device').slice(0, 18) + '…' : (info.model || 'Device');
+      const rowH = 28;
+      const top = 56;
+      const height = top + services.length * rowH + 36;
+      let rows = '';
+      services.forEach(function(s, i) {
+        const y = top + i * rowH;
+        const col = i % 3 === 0 ? '#00d4ff' : i % 3 === 1 ? '#a78bfa' : '#f5a623';
+        rows += '<rect x="200" y="' + y + '" width="12" height="12" rx="2" fill="' + col + '"/>';
+        rows += '<text x="220" y="' + (y + 11) + '" fill="#e8eef7" font-size="11">' + escapeHtml(s.label) + '</text>';
+        rows += '<text x="420" y="' + (y + 11) + '" fill="#5a6a82" font-size="9">' + escapeHtml(s.type) + '</text>';
+      });
+
+      // Category buckets for routing note on left
+      const hasVideo = services.some(function(s) { return /VIDEO|MONITOR|TV_SINK/i.test(s.type); });
+      const hasAudio = services.some(function(s) { return /AUDIO|VOLUME|SURROUND|STEREO|AVR|RECEIVER/i.test(s.type); });
+      const hasSource = services.some(function(s) { return /SOURCE|MEDIASERVER|DVD|APPLE/i.test(s.type); });
+      const hasEnv = services.some(function(s) { return /SHADE|LIGHTING|FAN|DOORBELL|INTERCOM|OSD/i.test(s.type); });
+
+      let lane = '';
+      let ly = top;
+      if (hasSource) { lane += '<text x="12" y="' + ly + '" fill="#00d4ff" font-size="10">SOURCE</text>'; ly += 16; }
+      if (hasVideo) { lane += '<text x="12" y="' + ly + '" fill="#f5a623" font-size="10">VIDEO</text>'; ly += 16; }
+      if (hasAudio) { lane += '<text x="12" y="' + ly + '" fill="#a78bfa" font-size="10">AUDIO</text>'; ly += 16; }
+      if (hasEnv) { lane += '<text x="12" y="' + ly + '" fill="#3dd68c" font-size="10">ENV / HOST</text>'; }
+
+      const svg = '<svg viewBox="0 0 680 ' + Math.max(height, 160) + '" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono, ui-monospace, monospace">' +
+        '<text x="12" y="18" fill="#5a6a82" font-size="10">SERVICES — control preferred: ' + escapeHtml(prefLabel) + '</text>' +
+        '<rect x="12" y="28" width="160" height="22" rx="4" fill="rgba(0,212,255,0.1)" stroke="#00d4ff" stroke-width="1"/>' +
+        '<text x="92" y="43" text-anchor="middle" fill="#00d4ff" font-size="11" font-weight="600">' + escapeHtml(modelShort) + '</text>' +
+        lane +
+        '<line x1="185" y1="' + top + '" x2="185" y2="' + (top + Math.max(services.length, 1) * rowH - 10) + '" stroke="#243044" stroke-width="1"/>' +
+        rows +
+        '</svg>';
+      diagHost.innerHTML = svg;
+      diagCard.style.display = 'block';
+
+      const parts = [];
+      parts.push('<strong>' + services.length + '</strong> service/resource type(s) declared.');
+      parts.push('Preferred control transport: <strong>' + escapeHtml(prefLabel) + '</strong>.');
+      if (hasSource && (hasVideo || hasAudio)) {
+        parts.push('Preferable media routing: <strong>source → (processor) → display</strong>; use audio/volume services on the processor when present.');
+      } else if (hasVideo && hasAudio) {
+        parts.push('This device presents both video and audio functions — typical processor/AVR or display with audio.');
+      } else if (hasEnv) {
+        parts.push('Environment/host-style services — keep out of the HDMI chain; drive from zone/service triggers.');
+      }
+      parts.push('In Blueprint, enable only the services the zone needs; extra resource types still appear in the profile for completeness.');
+      diagCap.innerHTML = parts.join(' ');
+    }
+
+    function analyzeComm(root) {
+      const ci = root.querySelector('control_interfaces');
+      const result = {
+        preferred: '',
+        hasIp: false, ipPort: '', ipProto: 'tcp',
+        hasRs232: false, baud: '', parity: '', dataLen: '', stop: '',
+        hasIr: false,
+        hasContact: false, contactActive: ''
+      };
+      if (!ci) return result;
+      result.preferred = (ci.getAttribute('preferred') || '').toLowerCase();
+      const ip = ci.querySelector('ip');
+      if (ip) {
+        result.hasIp = true;
+        result.ipPort = ip.getAttribute('port') || '?';
+        result.ipProto = ip.getAttribute('protocol') || 'tcp';
+      }
+      const rs232 = ci.querySelector('rs232');
+      if (rs232) {
+        result.hasRs232 = true;
+        result.baud = rs232.getAttribute('preferred_baud_rate') ||
+          (rs232.querySelector('baud_rate') && rs232.querySelector('baud_rate').getAttribute('speed')) || '?';
+        result.parity = rs232.getAttribute('parity_bit') || '';
+        result.dataLen = rs232.getAttribute('data_length') || '';
+        result.stop = rs232.getAttribute('stop_bit') || '';
+      }
+      if (ci.querySelector('ir')) result.hasIr = true;
+      const cs = ci.querySelector('contact_sensor');
+      if (cs) {
+        result.hasContact = true;
+        result.contactActive = cs.getAttribute('sensor_active') || 'closed';
+      }
+      return result;
+    }
+
+    function renderTimingDiagram(root, analysis, info) {
+      const card = document.getElementById('diagramCard');
+      const host = document.getElementById('profileDiagram');
+      const caption = document.getElementById('diagramCaption');
+      if (!card || !host) return;
+
+      const comm = analyzeComm(root);
+      const onMs = analysis.onMax || 0;
+      const offMs = analysis.offMax || 0;
+      const maxMs = Math.max(onMs, offMs, 1000);
+      // scale: timeline width 480px for maxMs
+      const scale = 480 / maxMs;
+      const onW = Math.max(8, Math.round(onMs * scale));
+      const offW = Math.max(8, Math.round(offMs * scale));
+
+      function ifaceColor(name) {
+        if (name === 'ip') return '#00d4ff';
+        if (name === 'rs232') return '#a78bfa';
+        if (name === 'ir') return '#f5a623';
+        if (name === 'contact_sensor' || name === 'contact') return '#3dd68c';
+        return '#7d8da6';
+      }
+
+      const preferred = comm.preferred || (comm.hasIp ? 'ip' : comm.hasRs232 ? 'rs232' : comm.hasContact ? 'contact' : comm.hasIr ? 'ir' : '');
+      const prefLabel = preferred === 'rs232' ? 'RS-232'
+        : preferred === 'ip' ? 'IP'
+        : preferred === 'contact_sensor' || preferred === 'contact' ? 'CONTACT'
+        : preferred === 'ir' ? 'IR'
+        : preferred ? preferred.toUpperCase() : '—';
+      const prefColor = ifaceColor(preferred === 'contact_sensor' ? 'contact' : preferred);
+
+      // Build path detail string for preferred
+      let pathDetail = '';
+      if (preferred === 'ip' && comm.hasIp) {
+        pathDetail = 'TCP ' + comm.ipPort + (comm.ipProto && comm.ipProto !== 'tcp' ? ' · ' + comm.ipProto : '');
+      } else if (preferred === 'rs232' && comm.hasRs232) {
+        pathDetail = comm.baud + ' baud';
+        if (comm.dataLen || comm.parity || comm.stop) {
+          pathDetail += ' · ' + (comm.dataLen || '8') + (comm.parity && comm.parity !== 'no' ? String(comm.parity)[0].toUpperCase() : 'N') + (comm.stop || '1');
+        }
+      } else if ((preferred === 'contact_sensor' || preferred === 'contact') && comm.hasContact) {
+        pathDetail = 'active: ' + (comm.contactActive || 'closed');
+      } else if (preferred === 'ir') {
+        pathDetail = 'RacePoint IR';
+      }
+
+      // Available chips for secondary interfaces
+      const chips = [];
+      if (comm.hasIp) chips.push({ label: 'IP :' + comm.ipPort, key: 'ip', on: preferred === 'ip' });
+      if (comm.hasRs232) chips.push({ label: 'RS-232 ' + (comm.baud || ''), key: 'rs232', on: preferred === 'rs232' });
+      if (comm.hasIr) chips.push({ label: 'IR', key: 'ir', on: preferred === 'ir' });
+      if (comm.hasContact) chips.push({ label: 'CONTACT', key: 'contact', on: preferred === 'contact' || preferred === 'contact_sensor' });
+
+      const onLabel = onMs ? formatSeconds(onMs) : '—';
+      const offLabel = offMs ? formatSeconds(offMs) : '—';
+      const onSlow = onMs >= 10000;
+      const offSlow = offMs >= 10000;
+      const modelShort = (info.model || 'Device').length > 22 ? (info.model || 'Device').slice(0, 20) + '…' : (info.model || 'Device');
+
+      // SVG layout
+      // Communication path at top, power bars below
+      let chipSvg = '';
+      chips.forEach(function(c, i) {
+        const x = 130 + i * 100;
+        const col = ifaceColor(c.key);
+        const fill = c.on ? col : 'transparent';
+        const stroke = col;
+        const textCol = c.on ? '#0a0e14' : col;
+        chipSvg += '<rect x="' + x + '" y="78" width="90" height="22" rx="4" fill="' + fill + '" fill-opacity="' + (c.on ? '0.9' : '0.08') + '" stroke="' + stroke + '" stroke-width="1.25"/>';
+        chipSvg += '<text x="' + (x + 45) + '" y="93" text-anchor="middle" fill="' + textCol + '" font-size="10" font-weight="600">' + escapeHtml(c.label) + '</text>';
+      });
+
+      const svg = [
+        '<svg viewBox="0 0 640 250" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono, ui-monospace, monospace">',
+        '<text x="12" y="22" fill="#5a6a82" font-size="10">CONTROL PATH</text>',
+        // boxes: Savant -> interface -> device
+        '<rect x="12" y="36" width="88" height="28" rx="5" fill="rgba(0,212,255,0.12)" stroke="#00d4ff" stroke-width="1.25"/>',
+        '<text x="56" y="54" text-anchor="middle" fill="#00d4ff" font-size="11" font-weight="600">Savant</text>',
+        '<line x1="100" y1="50" x2="124" y2="50" stroke="#2f3f55" stroke-width="1.5"/>',
+        '<polygon points="124,46 132,50 124,54" fill="#2f3f55"/>',
+        '<rect x="130" y="32" width="120" height="36" rx="5" fill="' + prefColor + '" fill-opacity="0.15" stroke="' + prefColor + '" stroke-width="1.5"/>',
+        '<text x="190" y="47" text-anchor="middle" fill="' + prefColor + '" font-size="11" font-weight="600">' + escapeHtml(prefLabel) + '</text>',
+        '<text x="190" y="61" text-anchor="middle" fill="#7d8da6" font-size="9">' + escapeHtml(pathDetail || 'preferred') + '</text>',
+        '<line x1="250" y1="50" x2="278" y2="50" stroke="#2f3f55" stroke-width="1.5"/>',
+        '<rect x="280" y="36" width="150" height="28" rx="5" fill="rgba(61,214,140,0.1)" stroke="#3dd68c" stroke-width="1.25"/>',
+        '<text x="355" y="54" text-anchor="middle" fill="#3dd68c" font-size="11" font-weight="600">' + escapeHtml(modelShort) + '</text>',
+        analysis.hasWOL ? '<text x="445" y="54" fill="#f5a623" font-size="9">+ WoL</text>' : '',
+        // available interfaces
+        '<text x="12" y="94" fill="#5a6a82" font-size="10">INTERFACES</text>',
+        chipSvg || '<text x="130" y="94" fill="#5a6a82" font-size="10">none declared</text>',
+        // timing section
+        '<text x="12" y="130" fill="#5a6a82" font-size="10">POWER TIMING</text>',
+        '<text x="12" y="158" fill="#7d8da6" font-size="11">Power On</text>',
+        onMs ? (
+          '<rect x="100" y="146" width="' + onW + '" height="16" rx="3" fill="' + (onSlow ? 'rgba(249,115,22,0.25)' : 'rgba(0,212,255,0.2)') + '" stroke="' + (onSlow ? '#fb923c' : '#00d4ff') + '" stroke-width="1.25"/>' +
+          '<text x="' + (100 + onW + 8) + '" y="158" fill="' + (onSlow ? '#fb923c' : '#00d4ff') + '" font-size="11" font-weight="600">' + onLabel + (onSlow ? '  slow' : '') + '</text>'
+        ) : '<text x="100" y="158" fill="#5a6a82" font-size="11">no PowerOn delays found</text>',
+        '<text x="12" y="188" fill="#7d8da6" font-size="11">Power Off</text>',
+        offMs ? (
+          '<rect x="100" y="176" width="' + offW + '" height="16" rx="3" fill="' + (offSlow ? 'rgba(249,115,22,0.2)' : 'rgba(167,139,250,0.2)') + '" stroke="' + (offSlow ? '#fb923c' : '#a78bfa') + '" stroke-width="1.25"/>' +
+          '<text x="' + (100 + offW + 8) + '" y="188" fill="' + (offSlow ? '#fb923c' : '#a78bfa') + '" font-size="11" font-weight="600">' + offLabel + (offSlow ? '  slow' : '') + '</text>'
+        ) : '<text x="100" y="188" fill="#5a6a82" font-size="11">no PowerOff delays found</text>',
+        // axis hint
+        '<line x1="100" y1="210" x2="580" y2="210" stroke="#243044" stroke-width="1"/>',
+        '<text x="100" y="226" fill="#5a6a82" font-size="9">0</text>',
+        '<text x="580" y="226" fill="#5a6a82" font-size="9" text-anchor="end">scaled to max wait (' + (formatSeconds(maxMs) || '1s') + ')</text>',
+        analysis.onGate || analysis.offGate ? '<text x="12" y="244" fill="#f5a623" font-size="9">state gates on power — On/Off may be skipped if tracked state is wrong</text>' : '',
+        '</svg>'
+      ].join('');
+
+      host.innerHTML = svg;
+      card.style.display = 'block';
+
+      const parts = [];
+      parts.push('Preferred control: <strong>' + escapeHtml(prefLabel) + '</strong>' + (pathDetail ? ' (' + escapeHtml(pathDetail) + ')' : '') + '.');
+      if (onMs) parts.push('Power On max wait <strong>' + onLabel + '</strong>.');
+      if (offMs) parts.push('Power Off max wait <strong>' + offLabel + '</strong>.');
+      if (analysis.hasWOL) parts.push('Wake-on-LAN is part of Power On.');
+      if (chips.length > 1) parts.push('Alternate interfaces available — confirm Blueprint uses the preferred path.');
+      caption.innerHTML = parts.join(' ');
+    }
+
+    function analyzePower(root) {
+      const powerOn = root.querySelector('action[name="PowerOn"]');
+      const powerOff = root.querySelector('action[name="PowerOff"]');
+      const onMax = maxDelayInAction(powerOn);
+      const offMax = maxDelayInAction(powerOff);
+      const onTotal = totalDelayInAction(powerOn);
+      const offTotal = totalDelayInAction(powerOff);
+
+      const onGate = powerOn && powerOn.querySelector('execute_on_state_variable_condition');
+      const offGate = powerOff && powerOff.querySelector('execute_on_state_variable_condition');
+
+      const hasWOL = !!(powerOn && (
+        powerOn.innerHTML.indexOf('WakeOnLAN') !== -1 ||
+        powerOn.innerHTML.indexOf('Wake On Lan') !== -1 ||
+        powerOn.innerHTML.indexOf('wol') !== -1
+      ));
+
+      const isMomentary = !!(root.querySelector('command_string') &&
+        powerOn && powerOff &&
+        powerOn.querySelector('delay[ms_delay="500"]') &&
+        (root.getAttribute('model') || '').toLowerCase().indexOf('momentary') !== -1);
+
+      const isContact = !!(root.querySelector('contact_sensor') ||
+        (root.getAttribute('device_class') || '').indexOf('relay') !== -1 ||
+        (root.getAttribute('device_class') || '').indexOf('Contact') !== -1);
+
+      return {
+        powerOn, powerOff, onMax, offMax, onTotal, offTotal,
+        onGate, offGate, hasWOL, isMomentary, isContact
+      };
     }
 
     function renderCommunication(root) {
@@ -830,7 +2314,7 @@
       const preferred = ci.getAttribute('preferred') || '';
       let html = '';
       if (preferred) {
-        html += '<p>Preferred interface: <strong>' + preferred.toUpperCase() + '</strong></p>';
+        html += '<p>Preferred interface: <strong>' + preferred.toUpperCase().replace(/_/g, ' ') + '</strong></p>';
       }
       html += '<ul>';
       const rs232 = ci.querySelector('rs232');
@@ -843,7 +2327,7 @@
         const connector = rs232.getAttribute('connector_type') || '';
         const cable = rs232.getAttribute('cable_type') || '';
         html += '<li><strong>RS-232</strong> — ' + baud + ' baud';
-        if (dataLen || parity || stop) html += ', ' + dataLen + (parity ? parity[0].toUpperCase() : '') + stop;
+        if (dataLen || parity || stop) html += ', ' + dataLen + (parity && parity !== 'no' ? parity[0].toUpperCase() : 'N') + stop;
         if (connector) html += ' · ' + connector;
         if (cable) html += ' · ' + cable;
         html += '</li>';
@@ -852,13 +2336,17 @@
       if (ip) {
         const port = ip.getAttribute('port') || '?';
         const proto = ip.getAttribute('protocol') || 'tcp';
-        html += '<li><strong>IP</strong> — TCP port <code>' + port + '</code> (' + proto + ')</li>';
+        html += '<li><strong>IP</strong> — port <code>' + port + '</code> (' + proto + ')</li>';
       }
       if (ci.querySelector('ir')) {
         html += '<li><strong>IR</strong> — RacePoint infrared codes defined</li>';
       }
+      if (ci.querySelector('contact_sensor')) {
+        const cs = ci.querySelector('contact_sensor');
+        const active = cs.getAttribute('sensor_active') || 'closed';
+        html += '<li><strong>Contact / relay</strong> — active state: ' + active + '</li>';
+      }
       html += '</ul>';
-      html += '<p class="cmd-list">Frame format ends with <code>0D0A</code>. Responses: <code>ok</code>, <code>err_cmd</code>, <code>err_option</code>, <code>err_auth</code>, etc.</p>';
       content.innerHTML = html;
     }
 
@@ -866,68 +2354,120 @@
       const card = document.getElementById('inputsCard');
       const content = document.getElementById('inputsContent');
       const media = root.querySelector('media_interfaces');
-      if (!media) { card.style.display = 'none'; return; }
-      const inputs = Array.from(media.querySelectorAll('input'));
-      if (!inputs.length) { card.style.display = 'none'; return; }
-      card.style.display = 'block';
-      let html = '<p><strong>' + inputs.length + '</strong> video inputs mapped:</p><ul>';
-      inputs.forEach(function(inp) {
-        const name = inp.getAttribute('name_on_component') || 'Unknown';
-        html += '<li><strong>' + escapeHtml(name) + '</strong></li>';
-      });
-      html += '</ul>';
-      const alwaysRepeat = root.querySelector('always_repeat_input_selection');
-      if (alwaysRepeat && alwaysRepeat.textContent.trim() === 'true') {
-        html += '<p><span class="tag input">always_repeat</span> Input select is re-sent every time (projector may not retain last source).</p>';
-      }
-      content.innerHTML = html;
-    }
+      const logical = root.querySelector('logical_ios');
+      const inputs = media ? Array.from(media.querySelectorAll(':scope > input')) : [];
+      const logicalInputs = logical ? Array.from(logical.querySelectorAll('input')) : [];
 
-    function renderPower(root) {
-      const card = document.getElementById('powerCard');
-      const content = document.getElementById('powerContent');
-      const powerOn = root.querySelector('action[name="PowerOn"]');
-      const powerOff = root.querySelector('action[name="PowerOff"]');
-      if (!powerOn && !powerOff) { card.style.display = 'none'; return; }
+      if (!inputs.length && !logicalInputs.length) {
+        card.style.display = 'none';
+        return;
+      }
       card.style.display = 'block';
       let html = '';
-      if (powerOn) html += buildPowerSequence(powerOn, 'Power On');
-      if (powerOff) html += buildPowerSequence(powerOff, 'Power Off');
+
+      if (inputs.length) {
+        html += '<p><strong>' + inputs.length + '</strong> physical input(s):</p><ul>';
+        inputs.forEach(function(inp) {
+          const name = inp.getAttribute('name_on_component') || 'Unknown';
+          html += '<li><strong>' + escapeHtml(name) + '</strong></li>';
+        });
+        html += '</ul>';
+      }
+
+      if (logicalInputs.length) {
+        html += '<p><strong>' + logicalInputs.length + '</strong> logical input(s):</p><ul>';
+        logicalInputs.slice(0, 20).forEach(function(inp) {
+          const name = inp.getAttribute('logical_name') || 'Unknown';
+          html += '<li>' + escapeHtml(name) + '</li>';
+        });
+        if (logicalInputs.length > 20) html += '<li>… +' + (logicalInputs.length - 20) + ' more</li>';
+        html += '</ul>';
+      }
+
+      const alwaysRepeat = root.querySelector('always_repeat_input_selection');
+      if (alwaysRepeat && alwaysRepeat.textContent.trim() === 'true') {
+        html += '<p><span class="tag input">always_repeat</span> Input select is re-sent on every zone start — device may not keep last source reliably.</p>';
+      }
+
+      const notesHint = (root.querySelector('notes') || {}).textContent || '';
+      if (/assign inputs|nothing is assigned|must assign/i.test(notesHint)) {
+        html += '<p><span class="tag power">setup required</span> Profile notes say logical inputs are <strong>not</strong> assigned by default — map them in Blueprint or services will not switch sources.</p>';
+      }
+
       content.innerHTML = html;
     }
 
-    function buildPowerSequence(actionEl, title) {
+    function renderPower(root, analysis) {
+      const card = document.getElementById('powerCard');
+      const content = document.getElementById('powerContent');
+      if (!analysis.powerOn && !analysis.powerOff) {
+        card.style.display = 'none';
+        return;
+      }
+      card.style.display = 'block';
+      let html = '';
+
+      if (analysis.onMax >= 10000 || analysis.offMax >= 10000) {
+        html += '<p style="margin-bottom:1rem;"><span class="timing-pill slow">slow device</span> ';
+        html += 'Longest single wait is <strong>' + formatSeconds(Math.max(analysis.onMax, analysis.offMax)) + '</strong>. ';
+        html += 'Zone turn-on must respect this before the next device in the chain can rely on a ready path.</p>';
+      } else if (analysis.onMax > 0 || analysis.offMax > 0) {
+        html += '<p style="margin-bottom:1rem;"><span class="timing-pill fast">fast relative</span> ';
+        html += 'Power waits are short (on ~' + (formatSeconds(analysis.onMax) || '0s') +
+          ', off ~' + (formatSeconds(analysis.offMax) || '0s') + '). ';
+        html += 'In a multi-device zone this box is usually ready before projectors or processors finish booting.</p>';
+      }
+
+      if (analysis.powerOn) html += buildPowerSequence(analysis.powerOn, 'Power On', analysis.onMax);
+      if (analysis.powerOff) html += buildPowerSequence(analysis.powerOff, 'Power Off', analysis.offMax);
+      content.innerHTML = html;
+    }
+
+    function buildPowerSequence(actionEl, title, maxMs) {
       const interfaces = Array.from(actionEl.querySelectorAll('command_interface'));
-      let html = '<div class="seq-block"><h4><span class="tag power">' + title + '</span></h4>';
+      let html = '<div class="seq-block"><h4><span class="tag power">' + title + '</span>';
+      if (maxMs >= 1000) {
+        const pillClass = maxMs >= 10000 ? 'timing-pill slow' : 'timing-pill';
+        html += '<span class="' + pillClass + '">' + formatSeconds(maxMs) + ' max wait</span>';
+      }
+      html += '</h4>';
 
       const cond = actionEl.querySelector('execute_on_state_variable_condition');
       if (cond) {
         const name = cond.getAttribute('name') || '';
         const test = cond.getAttribute('test_condition') || '';
         const val = cond.textContent.trim();
-        html += '<p>Gate: only when <code>' + escapeHtml(name) + '</code> is <em>' + escapeHtml(test) + '</em> “' + escapeHtml(val) + '”.</p>';
+        html += '<p><strong>State gate:</strong> runs only when <code>' + escapeHtml(name) + '</code> is <em>' +
+          escapeHtml(test) + '</em> “' + escapeHtml(val) + '”. ';
+        html += 'If Savant’s idea of power is wrong, this action can be skipped on a fast off→on.</p>';
       }
 
       const preferred = interfaces.find(function(i) { return i.getAttribute('interface') === 'rs232'; })
         || interfaces.find(function(i) { return i.getAttribute('interface') === 'ip'; })
+        || interfaces.find(function(i) { return i.getAttribute('interface') === 'contact_sensor'; })
         || interfaces[0];
 
       if (preferred) {
         const iface = preferred.getAttribute('interface') || '';
         const commands = Array.from(preferred.querySelectorAll('command'));
-        html += '<p>Via <strong>' + iface.toUpperCase() + '</strong>:</p><div>';
+        html += '<p>Via <strong>' + iface.toUpperCase().replace(/_/g, ' ') + '</strong>:</p><div>';
         commands.forEach(function(cmd, idx) {
           const strEl = cmd.querySelector('command_string');
-          const str = strEl ? strEl.textContent.trim() : '(command)';
+          let str = strEl ? strEl.textContent.trim() : '';
+          const macro = strEl && strEl.getAttribute('macro_name');
+          if (macro) str = '[macro: ' + macro + ']';
+          if (!str) str = '(pulse / no payload)';
           const delayEl = cmd.querySelector('delay');
           const delay = delayEl ? delayEl.getAttribute('ms_delay') : null;
           const needsResp = cmd.getAttribute('response_required') === 'yes';
           html += '<div class="step"><div class="step-number">' + (idx + 1) + '</div><div class="step-content">';
           html += 'Send <code>' + escapeHtml(str) + '</code>';
           if (needsResp) html += ' <span class="tag cmd">await response</span>';
-          if (delay) {
-            const sec = (parseInt(delay, 10) / 1000).toFixed(0);
-            html += '<br><span class="tag delay">wait ' + sec + 's</span>';
+          if (delay && parseInt(delay, 10) > 0) {
+            const label = formatSeconds(delay);
+            const slow = parseInt(delay, 10) >= 10000;
+            html += '<br><span class="tag delay">wait ' + label + '</span>';
+            if (slow) html += ' <span class="timing-pill slow">field-critical</span>';
           }
           html += '</div></div>';
         });
@@ -938,19 +2478,11 @@
       if (irIface) {
         const delayEl = irIface.querySelector('delay');
         const delay = delayEl ? delayEl.getAttribute('ms_delay') : null;
-        const sec = delay ? (parseInt(delay, 10) / 1000).toFixed(0) : '?';
-        html += '<p><span class="tag ir">IR</span> Fallback IR code defined';
-        if (delay) html += ' · <strong>' + sec + 's</strong> post-send wait';
+        html += '<p><span class="tag ir">IR</span> Fallback IR path defined';
+        if (delay && parseInt(delay, 10) > 0) html += ' · <strong>' + formatSeconds(delay) + '</strong> post-send wait';
         html += '.</p>';
       }
 
-      for (let i = 0; i < actionEl.childNodes.length; i++) {
-        const n = actionEl.childNodes[i];
-        if (n.nodeType === 8) {
-          html += '<p style="color:var(--text-dim);font-size:0.84rem;font-family:IBM Plex Mono,monospace;">// ' + escapeHtml(n.textContent.trim()) + '</p>';
-          break;
-        }
-      }
       html += '</div>';
       return html;
     }
@@ -958,70 +2490,251 @@
     function renderFeatures(root) {
       const card = document.getElementById('featuresCard');
       const content = document.getElementById('featuresContent');
+      const items = [];
+
       const pictureModes = Array.from(root.querySelectorAll('action[name^="SetPictureMode"]')).map(function(a) {
         return a.getAttribute('name').replace('SetPictureMode', '');
       });
       const aspects = Array.from(root.querySelectorAll('action[name^="SetAspectRatio"]')).map(function(a) {
         return a.getAttribute('name').replace('SetAspectRatio', '');
       });
-      const positions = Array.from(root.querySelectorAll('action[name^="SetPicturePosition"]')).map(function(a) {
-        return a.getAttribute('name').replace('SetPicturePosition', '');
+      const shadeActions = ['ShadeUp', 'ShadeDown', 'ShadeStop', 'ShadePreset'].filter(function(n) {
+        return root.querySelector('action[name="' + n + '"]');
       });
-      const hasOSD = !!(root.querySelector('action[name="Menu"]') || root.querySelector('action[name="OSDUp"]'));
-      const hasQueries = !!root.querySelector('action[name^="Query"]');
-      const hasMute = !!(root.querySelector('action[name*="PictureMuting"]') || root.querySelector('action[name*="blank"]'));
-      const has3D = !!(root.querySelector('action[name*="3D"]') || root.querySelector('action[name*="2D-3D"]'));
+      const volumeActions = root.querySelector('action[name="SetVolume"]') || root.querySelector('action[name="IncreaseVolume"]');
+      const hasMute = !!(root.querySelector('action[name="MuteOn"]') || root.querySelector('action[name*="PictureMuting"]'));
+      const hasOSD = !!(root.querySelector('action[name="Menu"]') || root.querySelector('action[name="OSDCursorUp"]'));
+      const hasQueries = !!root.querySelector('action[name^="Query"], action[name^="Req-"], action[name^="Get"]');
 
-      const items = [];
       if (pictureModes.length) {
         items.push('<strong>Picture modes</strong> — ' + pictureModes.map(function(m) {
           return m.replace(/([A-Z])/g, ' $1').trim();
         }).join(', '));
       }
       if (aspects.length) items.push('<strong>Aspect ratios</strong> — ' + aspects.join(', '));
-      if (positions.length) {
-        items.push('<strong>Picture positions / lens</strong> — ' + positions.join(', ') + ' <span class="tag delay">~30s</span>');
-      }
-      if (hasOSD) items.push('OSD navigation (Menu · arrows · Enter · Reset)');
-      if (hasMute) items.push('Picture mute / blank');
-      if (has3D) items.push('2D / 3D select');
-      if (hasQueries) items.push('Status queries (power, mode, aspect, levels…)');
+      if (shadeActions.length) items.push('<strong>Shade / screen</strong> — ' + shadeActions.join(', '));
+      if (volumeActions) items.push('Volume control');
+      if (hasMute) items.push('Mute');
+      if (hasOSD) items.push('OSD / menu navigation');
+      if (hasQueries) items.push('Status / query actions');
 
-      const adjustments = [];
-      if (root.querySelector('action[name="SetBrightness"]')) adjustments.push('Brightness');
-      if (root.querySelector('action[name="SetContrast"]')) adjustments.push('Contrast');
-      if (root.querySelector('action[name="SetHue"]')) adjustments.push('Hue');
-      if (root.querySelector('action[name="SetSharpness"]')) adjustments.push('Sharpness');
-      if (root.querySelector('action[name="SetColor"]')) adjustments.push('Color');
-      if (adjustments.length) items.push('Image levels: ' + adjustments.join(', '));
+      const logicalComponents = Array.from(root.querySelectorAll('logical_component')).map(function(lc) {
+        return lc.getAttribute('logical_component_name');
+      }).filter(Boolean);
+      if (logicalComponents.length > 1) {
+        items.push('<strong>Logical components</strong> — ' + logicalComponents.join(', ') + ' (multi-zone or multi-role)');
+      }
 
       if (!items.length) { card.style.display = 'none'; return; }
       card.style.display = 'block';
       content.innerHTML = '<ul>' + items.map(function(i) { return '<li>' + i + '</li>'; }).join('') + '</ul>';
     }
 
-    function renderSummary(root, info) {
+    function renderFieldImplications(root, analysis, notesText, info) {
+      const card = document.getElementById('fieldCard');
+      const list = document.getElementById('fieldContent');
+      const tips = [];
+      const cls = (info.deviceClass || '');
+      const model = (info.model || '').toLowerCase();
+
+      // ── Timing / zone design ──
+      if (analysis.onMax >= 30000) {
+        tips.push('<strong>Slow Power On (' + formatSeconds(analysis.onMax) + ')</strong> — Accidental zone Off → quick On will fail while this device is still booting. UI can show active before picture/sound are real. In a multi-device zone, treat this as the timing owner.');
+      } else if (analysis.onMax >= 10000) {
+        tips.push('<strong>Moderate Power On wait (~' + formatSeconds(analysis.onMax) + ')</strong> — Coordinate zone order so faster sources are not selected before this box is ready. Non-blocking Automator steps will not wait for this delay.');
+      } else if (analysis.onMax > 0 && analysis.onMax < 10000) {
+        tips.push('<strong>Fast Power On (~' + formatSeconds(analysis.onMax) + ')</strong> — Ready long before processors/projectors. Do not design zone delays around this device; design around the slow path.');
+      }
+
+      if (analysis.offMax >= 15000) {
+        tips.push('<strong>Long Power Off (~' + formatSeconds(analysis.offMax) + ')</strong> — Cool-down or standby. Do not assume an immediate Power On will succeed after Off.');
+      }
+
+      if (analysis.hasWOL) {
+        tips.push('<strong>Wake-on-LAN</strong> — Power On sends WoL then waits. If WoL is disabled or the MAC in Blueprint is wrong, the zone “starts” but the device never wakes. Verify MAC and switch/port allow magic packets.');
+      }
+
+      // ── State gates ──
+      if (analysis.onGate || analysis.offGate) {
+        tips.push('<strong>State gates on Power On/Off</strong> — Actions only run when Savant’s tracked power state matches. After a partial failure or manual power change, state can be wrong and On/Off is skipped. Look for query/status actions to resync, and test off→on quickly as a failure case.');
+      }
+
+      // ── Display / projector specific ──
+      const hasPicturePos = !!root.querySelector('action[name*="PicturePosition"], action[name*="SetPicturePosition"]');
+      const hasAspect = !!root.querySelector('action[name*="AspectRatio"], action[name*="SetAspect"]');
+      const inputActions = root.querySelectorAll('action[name*="Input"], action[name*="SelectInput"]');
+      if ((cls.indexOf('monitor') !== -1 || cls.indexOf('Projector') !== -1 || /projector|vpl|gtz|display/i.test(model + notesText)) && analysis.onMax >= 15000) {
+        tips.push('<strong>Display warm-up race</strong> — Input-select and picture-position commands in a source PowerOn workflow often fire immediately after Power On. They may be sent during warm-up. Confirm final input and lens memory after the full wait, not at t=5s.');
+      }
+      if (hasPicturePos) {
+        tips.push('<strong>Picture / lens positions defined</strong> — Aspect workflows (e.g. “Fullscreen”) may call SetPicturePosition together with screen masking. The name of the service (16:9) may not match the action (e.g. 1.85:1). Confirm which position is taught on the projector.');
+      }
+
+      // ── Shade / screen ──
+      const hasShade = !!root.querySelector('action[name="ShadeUp"], action[name="ShadeDown"], action[name="ShadePreset"]');
+      if (hasShade || cls.indexOf('Shade') !== -1) {
+        tips.push('<strong>Shade / screen controller</strong> — Presets and zone.group.node addresses must match the physical install. Wrong preset = wrong mask even when the workflow “succeeds.” Capture addresses via RPMTerminal while using the device web UI if control fails.');
+        if (root.querySelector('action[name="ShadePreset"]')) {
+          tips.push('<strong>ShadePreset in profile</strong> — Theater “Fullscreen” style workflows often pair this with a projector picture position. If masking moves but image size is wrong (or vice versa), check both halves of that Automator, not only the screen.');
+        }
+      }
+
+      // ── Relay / drapes ──
+      if (analysis.isMomentary || analysis.isContact) {
+        tips.push('<strong>Momentary contact / relay</strong> — On and Off may send the same pulse (close→delay→open). Not a latched power state. Parallel drapes on one closure are fine; polarity and pulse length matter more than “On vs Off” semantics.');
+      }
+
+      // ── Sources ──
+      if (cls.indexOf('Media_server') !== -1) {
+        if (analysis.onMax <= 5000) {
+          tips.push('<strong>Fast source</strong> — Ready in a few seconds. In a theater with a slow processor/display, the source is not the bottleneck. Zone triggers that only follow this service will under-wait for the rest of the stack.');
+        }
+        if (/HomeKit|coprocessor/i.test(notesText + (root.querySelector('coprocessor_required') || {}).outerHTML || '')) {
+          tips.push('<strong>HomeKit / coprocessor path</strong> — Control may not be classic IP command strings. Pairing and Savant OS support matter more than baud rates. Soft power delays in the profile are often placeholders.');
+        }
+      }
+
+      // ── Processor ──
+      if (cls.indexOf('AV_processor') !== -1 || cls.indexOf('Receiver') !== -1) {
+        if (analysis.onMax >= 40000) {
+          tips.push('<strong>Processor owns start timing</strong> — Long boot means sources and displays should not be assumed ready until this wait completes. LoadProfile without a real Power On/WoL fails on a cold unit.');
+        }
+        const loadProfile = root.querySelector('action[name="LoadProfile"], action[name*="Profile"]');
+        if (loadProfile) {
+          tips.push('<strong>Profile / preset load actions exist</strong> — Source workflows often LoadProfile for routing without powering the unit. On first On of the day, ensure something actually powers/wakes the processor or profile load is a no-op.');
+        }
+        const multiZone = root.querySelectorAll('logical_component');
+        if (multiZone.length > 1) {
+          tips.push('<strong>Multiple logical components</strong> (' + multiZone.length + ') — Main vs secondary zones can have separate power. Confirm zone Off does not leave a sub-zone or the main unit powered.');
+        }
+      }
+
+      // ── always_repeat ──
+      const alwaysRepeat = root.querySelector('always_repeat_input_selection');
+      if (alwaysRepeat && alwaysRepeat.textContent.trim() === 'true') {
+        tips.push('<strong>always_repeat_input_selection</strong> — Input is re-sent every zone start. Good for flaky HDMI/CEC; expect extra traffic and do not assume “last input” is kept inside the device.');
+      }
+
+      // ── Notes-driven install gotchas ──
+      if (/DeviceID|device id/i.test(notesText)) {
+        tips.push('<strong>DeviceID in notes</strong> — Often must be None or 1. Wrong ID breaks feedback even when control seems to work. Check installer page and restart the device/system if needed.');
+      }
+      if (/assign inputs|nothing is assigned|must assign/i.test(notesText)) {
+        tips.push('<strong>Inputs not pre-assigned</strong> — Map logical inputs in Blueprint or source switching will not work though the profile loads cleanly.');
+      }
+      if (/login|password/i.test(notesText) && root.querySelector('state_variable[name="Login"], state_variable[name="Password"]')) {
+        tips.push('<strong>Login / Password required</strong> — Set state variables in the Inspector. Empty credentials → silent IP/telnet failure.');
+      }
+      if (/zone.*group.*node|addresses needed|1\.1\.1/i.test(notesText)) {
+        tips.push('<strong>Address discovery</strong> — Notes describe finding zone.group.node via feedback. Defaults in workflows may be wrong for this install.');
+      }
+      if (/standby/i.test(notesText) && analysis.powerOff) {
+        tips.push('<strong>Standby vs full off</strong> — Power Off may only enter standby. Next On is leave-standby (often shorter) vs cold boot after rack power loss — test both.');
+      }
+      if (/secured|SECURED/i.test(notesText) || (analysis.powerOff && analysis.powerOff.innerHTML.indexOf('SECURED') !== -1)) {
+        tips.push('<strong>Secured Power Off</strong> — Profile uses a locked off command. Casual Off paths and full power-cut recovery behave differently; document which Off the zone uses.');
+      }
+
+      // ── IP / control path / device→controller interconnect ──
+      const ci = root.querySelector('control_interfaces');
+      if (ci) {
+        const preferred = (ci.getAttribute('preferred') || '').toLowerCase();
+        const ip = ci.querySelector('ip');
+        const rs232 = ci.querySelector('rs232');
+        const ir = ci.querySelector('ir');
+        const contact = ci.querySelector('contact_sensor');
+
+        if (preferred === 'ip' && ip) {
+          const port = ip.getAttribute('port') || '?';
+          tips.push('<strong>Preferred control is IP (port ' + escapeHtml(port) + ')</strong> — Host talks on the LAN; a control extender is not required for this path. First-On failures are often subnet, blocked port, or commands before the device finished booting.');
+        }
+
+        if (preferred === 'rs232' || (rs232 && preferred !== 'ip')) {
+          const baud = rs232 ? (rs232.getAttribute('preferred_baud_rate') ||
+            (rs232.querySelector('baud_rate') && rs232.querySelector('baud_rate').getAttribute('speed')) || '?') : '?';
+          tips.push('<strong>RS-232 control path</strong> — Profile defines the serial protocol (e.g. ' + escapeHtml(String(baud)) + ' baud); it does <em>not</em> pick the physical jack. In Blueprint, bind this device to a host serial port or a <strong>control extender</strong> port (e.g. SmartControl RS232 1/2). Mismatch baud, RJ45 pinout, or wrong port assignment = “On does nothing.”');
+        } else if (rs232 && preferred === 'ip') {
+          tips.push('<strong>RS-232 also declared</strong> — Preferred is IP, but serial is available as fallback. If you switch to RS-232 in the field, re-assign the control path to an extender/host serial port and match baud from this profile.');
+        }
+
+        if (preferred === 'ir' || ir) {
+          tips.push('<strong>IR control path</strong> — Host does not emit IR by itself for remote rooms. Assign this profile’s IR to a <strong>control extender IR output</strong> (or host IR if present), then emitter to the device. Confirm discrete Power On/Off codes exist; toggle-only IR is painful in multi-device zones.');
+        }
+
+        if (preferred === 'contact_sensor' || preferred === 'contact' || contact || analysis.isMomentary) {
+          tips.push('<strong>Contact / relay interconnect</strong> — Wire to a <strong>relay NO/NC</strong> on a control extender (or host relay). Profile pulse timing must match the load. Parallel drapes on one closure are fine; polarity and pulse length matter more than “On vs Off” naming.');
+        }
+
+        if (ci.querySelector('contact_sensor') && !analysis.isMomentary) {
+          tips.push('<strong>Contact sensor interface</strong> — Sense path (GPIO/trigger) may be bidirectional on extenders. Verify active level (open vs closed) matches hardware.');
+        }
+
+        if (preferred === 'rs232' || preferred === 'ir' || preferred === 'contact_sensor' || preferred === 'contact') {
+          tips.push('<strong>Device → controller map</strong> — Write down: device name → transport → controller (host or SSC) → port name. Zone Stack and Decoder show transport; Blueprint owns the port assignment.');
+        }
+      }
+
+      // ── Host automation (workflows / triggers) ──
+      if (analysis.onMax >= 10000 || analysis.isMomentary || (ci && (ci.querySelector('rs232') || ci.querySelector('ir')))) {
+        tips.push('<strong>Host-side automation options</strong> — Prefer <em>triggers</em> (zone or service state) and <em>Automator workflows</em> with After Delay for masking, drapes, and late cues instead of hard-coding long waits only inside this XML. Service PowerOn workflows = source-specific chains; ZoneIsActive triggers = room environment; shared custom workflows keep picture position + shade preset in one place.');
+      }
+
+      // ── Off path completeness hint ──
+      if (analysis.powerOn && analysis.powerOff) {
+        tips.push('<strong>What to verify in the zone</strong> — Profile defines On and Off, but zone triggers/workflows may only call On-side actions (e.g. drapes open, mask Fullscreen) without a matching Off. Trace zone inactive / service PowerOff for display, processor, and mask reset.');
+      } else if (analysis.powerOn && !analysis.powerOff) {
+        tips.push('<strong>No PowerOff action in profile</strong> — Off behavior may be missing or named differently. Confirm how the zone turns this device off.');
+      }
+
+      // ── Generic look-fors always useful ──
+      if (tips.length) {
+        tips.push('<strong>Field test checklist</strong> — (1) Cold rack On and wait full slow-path time. (2) Accidental Off → On within a few seconds. (3) Source change while zone stays active. (4) Zone Off leaves no orphan powered devices or open drapes. (5) For RS-232/IR: confirm the extender port is the one actually wired.');
+      }
+
+      if (!tips.length) {
+        card.style.display = 'none';
+        return;
+      }
+      card.style.display = 'block';
+      list.innerHTML = tips.map(function(t) { return '<li>' + t + '</li>'; }).join('');
+    }
+
+    function renderSummary(root, analysis, info) {
       const manufacturer = info.manufacturer, model = info.model, deviceClass = info.deviceClass;
       let html = '';
       html += '<p>Savant <strong>RacePoint</strong> component profile for <strong>' + escapeHtml(manufacturer) + ' ' + escapeHtml(model) + '</strong>';
       if (deviceClass) html += ' <span style="color:var(--text-muted)">(class: ' + escapeHtml(deviceClass) + ')</span>';
       html += '.</p>';
-      html += '<p>This file teaches the control system how to:</p><ul>';
-      html += '<li>Power the device <strong>on / off</strong> with correct warm-up &amp; cool-down timing</li>';
-      html += '<li>Select video inputs</li>';
-      html += '<li>Drive picture modes, aspect, and image parameters</li>';
-      html += '<li>Poll status feedback</li>';
-      html += '</ul>';
+
+      html += '<p>This profile teaches the control system how to talk to the device — power, inputs, and available actions — with the timing and state rules embedded in the XML.</p>';
+
+      const bullets = [];
+      if (analysis.powerOn || analysis.powerOff) {
+        let timing = 'Power on/off sequences';
+        if (analysis.onMax) timing += ' (On max wait ~' + formatSeconds(analysis.onMax) + ')';
+        if (analysis.offMax) timing += (analysis.onMax ? ',' : '') + ' (Off max wait ~' + formatSeconds(analysis.offMax) + ')';
+        bullets.push(timing);
+      }
+      if (root.querySelector('media_interfaces input, logical_ios input')) bullets.push('Input / source selection');
+      if (root.querySelector('action[name="SetVolume"], action[name="IncreaseVolume"]')) bullets.push('Volume / mute');
+      if (root.querySelector('action[name^="Shade"]')) bullets.push('Shade / screen motor control');
+      if (analysis.isContact || analysis.isMomentary) bullets.push('Contact closure / momentary relay');
+      if (root.querySelector('action[name^="Query"], action[name^="Get"], action[name^="Req-"]')) bullets.push('Status feedback / queries');
+
+      if (bullets.length) {
+        html += '<ul>' + bullets.map(function(b) { return '<li>' + b + '</li>'; }).join('') + '</ul>';
+      }
 
       const preferred = root.querySelector('control_interfaces') &&
         root.querySelector('control_interfaces').getAttribute('preferred');
-      if (preferred === 'rs232') {
-        html += '<p>Default transport is <strong>RS-232</strong>; IP and IR paths are also fully defined.</p>';
-      } else if (preferred === 'ip') {
-        html += '<p>Default transport is <strong>IP</strong>; serial and IR paths are also defined.</p>';
+      if (preferred) {
+        html += '<p>Preferred transport: <strong>' + preferred.toUpperCase().replace(/_/g, ' ') + '</strong>.</p>';
       }
 
-      html += '<p><span class="tag delay">timing</span> Power-on holds for tens of seconds after the command so the light engine can stabilize. Power-off is longer still — projectors need cool-down time.</p>';
+      if (analysis.onMax >= 10000) {
+        html += '<p><span class="tag delay">timing</span> Treat this as a <strong>slow-path</strong> device in zone design. Fast off→on is a common real-world failure when homeowners “fix” a zone that was turned off by accident.</p>';
+      }
+
       document.getElementById('summaryText').innerHTML = html;
     }
 
@@ -1038,6 +2751,669 @@
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
+    }
+
+    // ── Zone Stack (multi-profile) ──
+    const stackProfiles = [null, null, null, null, null, null];
+    const STACK_COLORS = ['#00d4ff', '#f5a623', '#a78bfa', '#3dd68c', '#fb923c', '#f472b6'];
+
+    function updateStackAnalyzeBtn() {
+      const n = stackProfiles.filter(Boolean).length;
+      const btn = document.getElementById('stackAnalyzeBtn');
+      if (btn) btn.disabled = n < 2;
+    }
+
+    function clearStackSlot(i) {
+      stackProfiles[i] = null;
+      const slot = document.getElementById('stackSlot' + i);
+      if (!slot) return;
+      slot.classList.remove('filled');
+      slot.querySelector('.slot-empty').style.display = '';
+      const meta = slot.querySelector('.slot-meta');
+      meta.style.display = 'none';
+      meta.innerHTML = '';
+      const clr = slot.querySelector('.slot-clear');
+      if (clr) clr.remove();
+      const inp = slot.querySelector('input[type="file"]');
+      if (inp) inp.value = '';
+      updateStackAnalyzeBtn();
+      document.getElementById('stackResults').classList.remove('visible');
+    }
+
+    function fillStackSlot(i, profile) {
+      stackProfiles[i] = profile;
+      const slot = document.getElementById('stackSlot' + i);
+      if (!slot) return;
+      slot.classList.add('filled');
+      slot.querySelector('.slot-empty').style.display = 'none';
+      const meta = slot.querySelector('.slot-meta');
+      meta.style.display = 'block';
+      const onL = profile.analysis.onMax ? formatSeconds(profile.analysis.onMax) : '—';
+      const pref = profile.comm.preferred
+        ? profile.comm.preferred.replace('contact_sensor', 'contact').toUpperCase()
+        : '—';
+      meta.innerHTML =
+        '<div class="slot-model">' + escapeHtml(profile.model) + '</div>' +
+        '<div class="slot-mfr">' + escapeHtml(profile.manufacturer) +
+        (profile.deviceClass ? ' · ' + escapeHtml(profile.deviceClass) : '') + '</div>' +
+        '<div class="slot-tags">' +
+        '<span class="tag delay">On ' + onL + '</span>' +
+        '<span class="tag cmd">' + escapeHtml(pref) + '</span>' +
+        '</div>';
+      if (!slot.querySelector('.slot-clear')) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'slot-clear';
+        btn.textContent = 'clear';
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          clearStackSlot(i);
+        });
+        slot.appendChild(btn);
+      }
+      updateStackAnalyzeBtn();
+    }
+
+    function parseProfileFromXml(xmlText, fileName) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(xmlText, 'application/xml');
+      if (doc.querySelector('parsererror')) throw new Error('Invalid XML');
+      const root = doc.querySelector('component') || doc.documentElement;
+      const manufacturer = root.getAttribute('manufacturer') || 'Unknown';
+      const model = root.getAttribute('model') || 'Unknown';
+      const deviceClass = root.getAttribute('device_class') || '';
+      const analysis = analyzePower(root);
+      const comm = analyzeComm(root);
+      return {
+        fileName: fileName || '',
+        manufacturer, model, deviceClass,
+        analysis, comm, root,
+        notes: (root.querySelector('notes') && root.querySelector('notes').textContent.trim()) || ''
+      };
+    }
+
+    function loadStackFile(slotIndex, file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const profile = parseProfileFromXml(e.target.result, file.name);
+          fillStackSlot(slotIndex, profile);
+        } catch (err) {
+          alert('Could not parse profile: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // Wire stack slots
+    document.querySelectorAll('.stack-slot').forEach(function(slot) {
+      const idx = parseInt(slot.getAttribute('data-slot'), 10);
+      const input = slot.querySelector('input[type="file"]');
+      slot.addEventListener('click', function(e) {
+        if (e.target.classList.contains('slot-clear')) return;
+        if (!stackProfiles[idx]) input.click();
+      });
+      slot.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        slot.classList.add('dragover');
+      });
+      slot.addEventListener('dragleave', function() { slot.classList.remove('dragover'); });
+      slot.addEventListener('drop', function(e) {
+        e.preventDefault();
+        slot.classList.remove('dragover');
+        if (e.dataTransfer.files[0]) loadStackFile(idx, e.dataTransfer.files[0]);
+      });
+      input.addEventListener('change', function() {
+        if (input.files[0]) loadStackFile(idx, input.files[0]);
+      });
+    });
+
+    document.getElementById('stackClearBtn')?.addEventListener('click', function() {
+      for (let i = 0; i < stackProfiles.length; i++) clearStackSlot(i);
+    });
+
+    document.getElementById('stackAnalyzeBtn')?.addEventListener('click', function() {
+      renderStackComparison();
+    });
+
+    function classifyStackRole(p) {
+      const cls = (p.deviceClass || '').toLowerCase();
+      const model = (p.model || '').toLowerCase();
+      const blob = cls + ' ' + model + ' ' + (p.notes || '').toLowerCase();
+      if (cls.indexOf('shade') !== -1 || /masking|screen control|cvm|shade/.test(blob)) return 'masking';
+      if (cls.indexOf('contact') !== -1 || cls.indexOf('relay') !== -1 || /momentary|relay|drape/.test(blob)) return 'drapes';
+      if (cls.indexOf('av_processor') !== -1 || cls.indexOf('receiver') !== -1 || /altitude|trinnov|marantz|denon|processor|avr|cinema/.test(blob)) return 'processor';
+      if (cls.indexOf('monitor') !== -1 || /projector|vpl|gtz|display|epson|sony vpl/.test(blob)) return 'display';
+      if (/meridian|speaker|amplifier|271|amp stage/.test(blob) && cls.indexOf('media_server') === -1) return 'speakers';
+      if (cls.indexOf('media_server') !== -1 || /apple tv|kaleidescape|bluray|blu-ray|source|stream/.test(blob)) return 'source';
+      if (cls.indexOf('media') !== -1) return 'source';
+      return 'other';
+    }
+
+    function shortName(p) {
+      const m = p.model || 'Device';
+      return m.length > 16 ? m.slice(0, 14) + '…' : m;
+    }
+
+    function prefLabel(p) {
+      if (!p.comm || !p.comm.preferred) return '—';
+      const k = p.comm.preferred.replace('contact_sensor', 'contact');
+      if (k === 'ip') return 'IP' + (p.comm.ipPort ? ' :' + p.comm.ipPort : '');
+      if (k === 'rs232') return 'RS-232';
+      if (k === 'ir') return 'IR';
+      if (k === 'contact') return 'CONTACT';
+      return k.toUpperCase();
+    }
+
+    function renderStackInterconnect(profiles) {
+      const host = document.getElementById('stackInterconnectDiagram');
+      const caption = document.getElementById('stackInterconnectCaption');
+      if (!host) return;
+
+      // Include every loaded profile (2–6)
+      const roles = { source: [], processor: [], display: [], speakers: [], drapes: [], masking: [], other: [] };
+      profiles.forEach(function(p, i) {
+        const role = classifyStackRole(p);
+        roles[role].push({ p: p, i: i, role: role });
+      });
+
+      const colX = { source: 24, processor: 248, display: 472, speakers: 248, env: 472 };
+      const boxW = 168;
+      const boxH = 42;
+      const gapY = 52;
+
+      function node(x, y, label, sub, color) {
+        return (
+          '<rect x="' + x + '" y="' + y + '" width="' + boxW + '" height="' + boxH + '" rx="6" fill="' + color + '" fill-opacity="0.12" stroke="' + color + '" stroke-width="1.5"/>' +
+          '<text x="' + (x + boxW / 2) + '" y="' + (y + 17) + '" text-anchor="middle" fill="' + color + '" font-size="11" font-weight="600">' + escapeHtml(label) + '</text>' +
+          '<text x="' + (x + boxW / 2) + '" y="' + (y + 32) + '" text-anchor="middle" fill="#7d8da6" font-size="9">' + escapeHtml(sub) + '</text>'
+        );
+      }
+
+      function arrow(x1, y1, x2, y2, label, color) {
+        const mx = (x1 + x2) / 2;
+        const my = (y1 + y2) / 2 - 6;
+        return (
+          '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + (x2 - 8) + '" y2="' + y2 + '" stroke="' + color + '" stroke-width="1.5"/>' +
+          '<polygon points="' + (x2 - 8) + ',' + (y2 - 4) + ' ' + x2 + ',' + y2 + ' ' + (x2 - 8) + ',' + (y2 + 4) + '" fill="' + color + '"/>' +
+          (label ? '<text x="' + mx + '" y="' + my + '" text-anchor="middle" fill="' + color + '" font-size="9">' + label + '</text>' : '')
+        );
+      }
+
+      function stackColumn(items, x, startY, roleTag) {
+        const centers = [];
+        items.forEach(function(s, n) {
+          const y = startY + n * gapY;
+          const c = STACK_COLORS[s.i % STACK_COLORS.length];
+          const tag = roleTag || s.role.toUpperCase();
+          svgBody += node(x, y, shortName(s.p), tag + ' · ' + prefLabel(s.p), c);
+          centers.push({ x: x, right: x + boxW, y: y + boxH / 2, top: y, color: c, s: s });
+        });
+        return centers;
+      }
+
+      let svgBody = '';
+      const y0 = 58;
+
+      // All sources stacked in left column
+      const srcCenters = stackColumn(roles.source, colX.source, y0, 'SOURCE');
+      // All processors
+      const procCenters = stackColumn(roles.processor, colX.processor, y0, 'PROCESSOR');
+      // All displays
+      const dispCenters = stackColumn(roles.display, colX.display, y0, 'DISPLAY');
+
+      // Preferable media arrows: each source → first processor (or display); processor → each display
+      if (srcCenters.length && procCenters.length) {
+        srcCenters.forEach(function(sc) {
+          const pc = procCenters[0];
+          svgBody += arrow(sc.right, sc.y, pc.x, pc.y, srcCenters.length === 1 ? 'HDMI / AV' : '', '#5a6a82');
+        });
+        if (srcCenters.length > 1) {
+          svgBody += '<text x="' + ((srcCenters[0].right + procCenters[0].x) / 2) + '" y="' + (y0 - 4) + '" text-anchor="middle" fill="#5a6a82" font-size="9">sources → processor</text>';
+        }
+      } else if (srcCenters.length && dispCenters.length && !procCenters.length) {
+        srcCenters.forEach(function(sc) {
+          svgBody += arrow(sc.right, sc.y, dispCenters[0].x, dispCenters[0].y, 'HDMI / AV', '#5a6a82');
+        });
+      }
+      if (procCenters.length && dispCenters.length) {
+        dispCenters.forEach(function(dc) {
+          const pc = procCenters[0];
+          svgBody += arrow(pc.right, pc.y, dc.x, dc.y, dispCenters.length === 1 ? 'HDMI video' : '', '#5a6a82');
+        });
+        if (dispCenters.length > 1) {
+          svgBody += '<text x="' + ((procCenters[0].right + dispCenters[0].x) / 2) + '" y="' + (y0 - 4) + '" text-anchor="middle" fill="#5a6a82" font-size="9">processor → display(s)</text>';
+        }
+      }
+
+      // Speakers under processor column (all of them)
+      const chainDepth = Math.max(roles.source.length, roles.processor.length, roles.display.length, 1);
+      let yBelow = y0 + chainDepth * gapY + 16;
+      const spkCenters = stackColumn(roles.speakers, colX.speakers, yBelow, 'SPEAKERS');
+      if (spkCenters.length && procCenters.length) {
+        spkCenters.forEach(function(sp) {
+          svgBody += '<line x1="' + (colX.processor + boxW / 2) + '" y1="' + (procCenters[procCenters.length - 1].top + boxH) + '" x2="' + (sp.x + boxW / 2) + '" y2="' + sp.top + '" stroke="#5a6a82" stroke-width="1.5" stroke-dasharray="4 3"/>';
+        });
+        svgBody += '<text x="' + (colX.processor + boxW / 2 + 10) + '" y="' + (yBelow - 6) + '" fill="#5a6a82" font-size="9">AES / analog / net audio</text>';
+      }
+
+      // Environment: all drapes + masking
+      const envItems = roles.drapes.concat(roles.masking);
+      const envCenters = stackColumn(envItems, colX.env, yBelow, null);
+      // fix tags for env (stackColumn used role from item)
+      // already uses s.role via roleTag null → s.role — drapes/masking ok if classify sets role
+      if (envCenters.length) {
+        envCenters.forEach(function(ec, n) {
+          // rewrite not needed; role tag already DRAPES/MASKING from classify
+        });
+        if (dispCenters.length) {
+          svgBody += '<text x="' + (colX.display + boxW / 2) + '" y="' + (yBelow - 6) + '" text-anchor="middle" fill="#5a6a82" font-size="9">env · zone / video triggers</text>';
+        }
+      }
+
+      // All "other" — full width row(s) so nothing is dropped
+      let yOther = yBelow;
+      if (spkCenters.length || envCenters.length) {
+        yOther = yBelow + Math.max(spkCenters.length, envCenters.length, 1) * gapY + 20;
+      }
+      if (roles.other.length) {
+        roles.other.forEach(function(s, n) {
+          const col = n % 3;
+          const row = Math.floor(n / 3);
+          const x = 24 + col * 220;
+          const y = yOther + row * gapY;
+          const c = STACK_COLORS[s.i % STACK_COLORS.length];
+          svgBody += node(x, y, shortName(s.p), 'DEVICE · ' + prefLabel(s.p), c);
+        });
+        yOther += Math.ceil(roles.other.length / 3) * gapY;
+      }
+
+      const shown = profiles.length;
+      const controlBits = profiles.map(function(p, i) {
+        return '<tspan fill="' + STACK_COLORS[i % STACK_COLORS.length] + '">' + escapeHtml(shortName(p)) + '</tspan>: ' + escapeHtml(prefLabel(p));
+      }).join('   ');
+
+      const height = Math.max(240, yOther + 40);
+      const svg = '<svg viewBox="0 0 680 ' + height + '" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono, ui-monospace, monospace">' +
+        '<text x="12" y="16" fill="#5a6a82" font-size="10">SIGNAL PATH (preferable) — showing all ' + shown + ' loaded profile' + (shown === 1 ? '' : 's') + ' · solid = media · dashed = audio</text>' +
+        '<text x="12" y="32" fill="#5a6a82" font-size="9">Control: ' + controlBits + '</text>' +
+        svgBody +
+        '</svg>';
+
+      host.innerHTML = svg;
+
+      const parts = [];
+      parts.push('Diagram includes <strong>all ' + shown + '</strong> loaded profile' + (shown === 1 ? '' : 's') + '.');
+      if (roles.source.length && roles.processor.length && roles.display.length) {
+        parts.push('Preferable media path: <strong>source(s) → processor → display(s)</strong> (HDMI/AV).');
+      } else if (roles.source.length && roles.display.length) {
+        parts.push('Media path: <strong>source(s) → display(s)</strong> (no processor in this stack).');
+      } else {
+        parts.push('Roles inferred from device class/model — set Blueprint interconnects to match the intended path.');
+      }
+      if (roles.source.length > 1) {
+        parts.push(roles.source.length + ' sources — each should have its own service/PowerOn workflow into the processor.');
+      }
+      if (roles.speakers.length) {
+        parts.push('Speakers/amp stage hangs off the <strong>processor</strong> audio outputs (AES, analog, or networked).');
+      }
+      if (roles.drapes.length || roles.masking.length) {
+        parts.push('Drapes/masking are <strong>zone environment</strong>, not in the HDMI chain — parallel contact/shade control.');
+      }
+      parts.push('Each box shows that profile’s <strong>preferred control</strong> (IP / RS-232 / IR / contact).');
+      if (roles.other.length) {
+        parts.push(roles.other.length + ' unclassified device(s) at bottom — verify class in the single-profile Decoder if the role looks wrong.');
+      }
+      caption.innerHTML = parts.join(' ');
+    }
+
+    function renderStackComparison() {
+      const profiles = stackProfiles.filter(Boolean);
+      if (profiles.length < 2) return;
+
+      const results = document.getElementById('stackResults');
+      results.classList.add('visible');
+
+      // Combined max for scale (at least 10s for readability)
+      let maxMs = 10000;
+      profiles.forEach(function(p) {
+        maxMs = Math.max(maxMs, p.analysis.onMax || 0, p.analysis.offMax || 0);
+      });
+      // pad slightly
+      maxMs = Math.ceil(maxMs / 5000) * 5000;
+      if (maxMs < 15000) maxMs = 15000;
+
+      const chartLeft = 140;
+      const chartWidth = 520;
+      const rowH = 36;
+      const topY = 48;
+      const height = topY + profiles.length * rowH + 70;
+
+      function xFor(ms) {
+        return chartLeft + (ms / maxMs) * chartWidth;
+      }
+
+      // time ticks every 10s or sensible step
+      const tickStep = maxMs <= 30000 ? 5000 : maxMs <= 90000 ? 10000 : 15000;
+      let ticks = '';
+      for (let t = 0; t <= maxMs; t += tickStep) {
+        const x = xFor(t);
+        ticks += '<line x1="' + x + '" y1="' + (topY - 8) + '" x2="' + x + '" y2="' + (topY + profiles.length * rowH) + '" stroke="#1a2332" stroke-width="1"/>';
+        ticks += '<text x="' + x + '" y="' + (topY + profiles.length * rowH + 18) + '" text-anchor="middle" fill="#5a6a82" font-size="10">' + (t / 1000) + 's</text>';
+      }
+
+      let rows = '';
+      profiles.forEach(function(p, i) {
+        const y = topY + i * rowH;
+        const col = STACK_COLORS[i % STACK_COLORS.length];
+        const onMs = p.analysis.onMax || 0;
+        const label = (p.model.length > 18 ? p.model.slice(0, 16) + '…' : p.model);
+        const pref = p.comm.preferred
+          ? p.comm.preferred.replace('contact_sensor', 'contact').toUpperCase()
+          : '';
+        rows += '<text x="12" y="' + (y + 14) + '" fill="#7d8da6" font-size="11">' + escapeHtml(label) + '</text>';
+        if (pref) {
+          rows += '<text x="12" y="' + (y + 26) + '" fill="#5a6a82" font-size="9">' + escapeHtml(pref) + '</text>';
+        }
+        // command marker at 0
+        rows += '<rect x="' + chartLeft + '" y="' + (y + 4) + '" width="4" height="14" rx="1" fill="' + col + '" opacity="0.5"/>';
+        if (onMs > 0) {
+          const w = Math.max(6, (onMs / maxMs) * chartWidth);
+          const slow = onMs >= 10000;
+          rows += '<rect x="' + chartLeft + '" y="' + (y + 4) + '" width="' + w + '" height="14" rx="3" fill="' + col + '" fill-opacity="0.2" stroke="' + col + '" stroke-width="1.4"/>';
+          rows += '<circle cx="' + (chartLeft + w) + '" cy="' + (y + 11) + '" r="3.5" fill="' + col + '"/>';
+          rows += '<text x="' + (chartLeft + w + 8) + '" y="' + (y + 15) + '" fill="' + col + '" font-size="10" font-weight="600">' +
+            formatSeconds(onMs) + (slow ? ' ready' : '') + '</text>';
+        } else {
+          rows += '<text x="' + (chartLeft + 8) + '" y="' + (y + 15) + '" fill="#5a6a82" font-size="10">no On delay</text>';
+        }
+        // key moment: input race if display-like with long on
+        if (onMs >= 15000 && (p.deviceClass.indexOf('monitor') !== -1 || /projector|display|vpl/i.test(p.model + p.deviceClass))) {
+          const ix = chartLeft + 12;
+          rows += '<line x1="' + ix + '" y1="' + (y + 2) + '" x2="' + ix + '" y2="' + (y + 20) + '" stroke="#fb923c" stroke-width="2"/>';
+        }
+      });
+
+      // Key moment markers: slowest ready line
+      let slowest = 0;
+      profiles.forEach(function(p) { slowest = Math.max(slowest, p.analysis.onMax || 0); });
+      let keyLines = '';
+      if (slowest > 0) {
+        const sx = xFor(slowest);
+        keyLines += '<line x1="' + sx + '" y1="' + (topY - 12) + '" x2="' + sx + '" y2="' + (topY + profiles.length * rowH) + '" stroke="#3dd68c" stroke-width="1.25" stroke-dasharray="4 3"/>';
+        keyLines += '<text x="' + sx + '" y="' + (topY - 16) + '" text-anchor="middle" fill="#3dd68c" font-size="9">stack ready ~' + formatSeconds(slowest) + '</text>';
+      }
+      // early UI active (~3s) marker if any slow device
+      if (slowest >= 10000) {
+        const ux = xFor(3000);
+        keyLines += '<line x1="' + ux + '" y1="' + (topY - 4) + '" x2="' + ux + '" y2="' + (topY + profiles.length * rowH) + '" stroke="#3dd68c" stroke-width="1" stroke-dasharray="2 3" opacity="0.45"/>';
+        keyLines += '<text x="' + (ux + 4) + '" y="' + (topY + profiles.length * rowH + 32) + '" fill="#5a6a82" font-size="9">UI often active</text>';
+      }
+
+      const svg = '<svg viewBox="0 0 680 ' + height + '" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono, ui-monospace, monospace">' +
+        '<text x="12" y="22" fill="#5a6a82" font-size="10">POWER ON — command at t=0 · bar ends when profile max wait completes</text>' +
+        ticks + keyLines + rows +
+        '</svg>';
+
+      document.getElementById('stackDiagram').innerHTML = svg;
+
+      // Caption
+      const slowestP = profiles.reduce(function(a, b) {
+        return (a.analysis.onMax || 0) >= (b.analysis.onMax || 0) ? a : b;
+      });
+      document.getElementById('stackDiagramCaption').innerHTML =
+        'Longest Power On in this stack: <strong>' + escapeHtml(slowestP.model) + '</strong> (~' +
+        formatSeconds(slowestP.analysis.onMax) + '). Zone design should wait on this device before treating the path as ready.' +
+        (slowest >= 15000
+          ? ' Orange tick on a row marks likely <strong>input/position command race</strong> during warm-up.'
+          : '');
+
+      renderStackInterconnect(profiles);
+
+      // Interaction tips
+      const tips = [];
+      const sorted = profiles.slice().sort(function(a, b) {
+        return (b.analysis.onMax || 0) - (a.analysis.onMax || 0);
+      });
+      const fastest = sorted[sorted.length - 1];
+      const slowestProf = sorted[0];
+
+      if ((slowestProf.analysis.onMax || 0) >= 10000 && (fastest.analysis.onMax || 0) < 8000) {
+        tips.push('<strong>Fast vs slow path</strong> — <em>' + escapeHtml(fastest.model) + '</em> is ready in ~' +
+          formatSeconds(fastest.analysis.onMax) + ' while <em>' + escapeHtml(slowestProf.model) + '</em> needs ~' +
+          formatSeconds(slowestProf.analysis.onMax) + '. Non-blocking workflows will finish the fast device first; do not judge the zone on the fast one.');
+      }
+
+      if ((slowestProf.analysis.onMax || 0) >= 30000) {
+        tips.push('<strong>Key moment ~' + formatSeconds(slowestProf.analysis.onMax) + '</strong> — Earliest credible “path ready” if all three start together. Automator delays and zone tests should use this as a floor.');
+      }
+
+      // Control path mix
+      const prefs = {};
+      profiles.forEach(function(p) {
+        const k = p.comm.preferred || 'unknown';
+        prefs[k] = (prefs[k] || []).concat([p.model]);
+      });
+      const prefKeys = Object.keys(prefs);
+      if (prefKeys.length > 1) {
+        tips.push('<strong>Mixed control transports</strong> — ' +
+          prefKeys.map(function(k) {
+            return k.replace('contact_sensor', 'contact').toUpperCase() + ' (' + prefs[k].map(function(m){ return escapeHtml(m); }).join(', ') + ')';
+          }).join('; ') +
+          '. IP vs RS-232 failures look different on first On (network/boot vs cable/baud).');
+      }
+
+      // WoL
+      const wol = profiles.filter(function(p) { return p.analysis.hasWOL; });
+      if (wol.length) {
+        tips.push('<strong>Wake-on-LAN in stack</strong> — ' + wol.map(function(p){ return escapeHtml(p.model); }).join(', ') +
+          '. If WoL fails, downstream profile loads and source switching still “run” in the workflow but the processor never wakes.');
+      }
+
+      // State gates
+      const gated = profiles.filter(function(p) { return p.analysis.onGate || p.analysis.offGate; });
+      if (gated.length) {
+        tips.push('<strong>State gates</strong> on ' + gated.map(function(p){ return escapeHtml(p.model); }).join(', ') +
+          '. After a partial zone failure, one device may skip Power On while others run — classic “half on” theater.');
+      }
+
+      // Display race
+      profiles.forEach(function(p) {
+        if ((p.analysis.onMax || 0) >= 15000 &&
+            (p.deviceClass.indexOf('monitor') !== -1 || /projector|display|vpl/i.test(p.model + p.deviceClass))) {
+          tips.push('<strong>Display race on ' + escapeHtml(p.model) + '</strong> — Input select / picture position in a source PowerOn workflow often fire at t≈0 while warm-up still runs (~' +
+            formatSeconds(p.analysis.onMax) + '). Confirm final input after the wait.');
+        }
+      });
+
+      // Off asymmetry
+      const longOff = profiles.filter(function(p) { return (p.analysis.offMax || 0) >= 10000; });
+      if (longOff.length) {
+        tips.push('<strong>Long Off on ' + longOff.map(function(p){ return escapeHtml(p.model); }).join(', ') +
+          '</strong> — Quick Off→On can hit cool-down/standby. Test that path, not only cold start.');
+      }
+
+      tips.push('<strong>Programmer attention points</strong> — (1) Stack ready line on the diagram. (2) Any device still in its bar when UI shows active. (3) Source/profile load without processor power. (4) Matching Off for every On-side environment action (drapes, mask).');
+
+      document.getElementById('stackInteractList').innerHTML =
+        tips.map(function(t) { return '<li>' + t + '</li>'; }).join('');
+
+      renderStackRealizedServices(profiles);
+
+      // Summary table-ish
+      let sum = '<p>Comparing <strong>' + profiles.length + '</strong> profiles as a zone stack. Bars are Power On max waits from each profile (command at t=0).</p><ul>';
+      profiles.forEach(function(p, i) {
+        sum += '<li><span style="color:' + STACK_COLORS[i % STACK_COLORS.length] + '">●</span> <strong>' + escapeHtml(p.manufacturer) + ' ' + escapeHtml(p.model) + '</strong> — On ' +
+          (p.analysis.onMax ? formatSeconds(p.analysis.onMax) : '—') +
+          ', Off ' + (p.analysis.offMax ? formatSeconds(p.analysis.offMax) : '—') +
+          ', preferred ' + (p.comm.preferred ? p.comm.preferred.replace(/_/g, ' ').toUpperCase() : '—') +
+          '</li>';
+      });
+      sum += '</ul>';
+      sum += '<p>Use this with the Case Study timeline: stack ready ≈ max of these On waits when everything starts together.</p>';
+      document.getElementById('stackSummaryText').innerHTML = sum;
+
+      results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function renderStackRealizedServices(profiles) {
+      const host = document.getElementById('stackServicesContent');
+      const card = document.getElementById('stackServicesCard');
+      if (!host || !card) return;
+
+      // Per-profile service sets
+      const byProfile = profiles.map(function(p, i) {
+        const services = p.root ? extractServices(p.root) : [];
+        return { p: p, i: i, services: services, types: services.map(function(s) { return s.type; }) };
+      });
+
+      const allTypes = {};
+      byProfile.forEach(function(bp) {
+        bp.types.forEach(function(t) {
+          if (!allTypes[t]) allTypes[t] = [];
+          allTypes[t].push(bp);
+        });
+      });
+
+      function hasType(pred) {
+        return Object.keys(allTypes).some(function(t) { return pred(t); });
+      }
+      function owners(pred) {
+        const set = [];
+        Object.keys(allTypes).forEach(function(t) {
+          if (!pred(t)) return;
+          allTypes[t].forEach(function(bp) {
+            if (set.indexOf(bp) === -1) set.push(bp);
+          });
+        });
+        return set;
+      }
+      function nameList(bps) {
+        return bps.map(function(bp) {
+          return '<span style="color:' + STACK_COLORS[bp.i % STACK_COLORS.length] + '">' + escapeHtml(bp.p.model) + '</span>';
+        }).join(', ');
+      }
+
+      const realized = [];
+
+      // Source → sink paths
+      const sources = owners(function(t) {
+        return /SOURCE|MEDIASERVER|ENHANCEDDVD|APPLE/i.test(t) && !/SHADE|LIGHTING|DOORBELL|OSD/i.test(t);
+      });
+      const videoSinks = owners(function(t) {
+        return /MONITOR_SINK|TV_SINK|VIDEOPROCESSOR/i.test(t);
+      });
+      const videoSwitch = owners(function(t) { return /VIDEOSWITCH/i.test(t); });
+      const audioSwitch = owners(function(t) { return /AUDIOSWITCH|VOLUMECONTROL|SURROUND|STEREOPROCESSOR|AVR|RECEIVER/i.test(t); });
+      const shades = owners(function(t) { return /SHADE/i.test(t); });
+      const lighting = owners(function(t) { return /LIGHTING|FAN/i.test(t); });
+
+      if (sources.length && (videoSinks.length || videoSwitch.length)) {
+        realized.push({
+          title: 'Watch / video path',
+          detail: 'Source service(s) on ' + nameList(sources) + ' can feed video toward ' +
+            nameList(videoSwitch.length ? videoSwitch : videoSinks) +
+            '. Preferable routing: source → processor (if present) → display. Enable matching AV source + sink services in the same zone.'
+        });
+      } else if (sources.length) {
+        realized.push({
+          title: 'Source services without a video sink in stack',
+          detail: 'Sources on ' + nameList(sources) + ' are present, but no display/processor video sink profile is loaded. Add the display (or processor) profile to see a complete watch path.'
+        });
+      }
+
+      if (sources.length && audioSwitch.length) {
+        realized.push({
+          title: 'Listen / audio path',
+          detail: 'Source audio can be switched/processed on ' + nameList(audioSwitch) +
+            '. Prefer volume and surround services on the processor; keep speaker/amp profiles as the downstream path, not a second volume endpoint unless intentional.'
+        });
+      }
+
+      if (videoSwitch.length && videoSinks.length) {
+        realized.push({
+          title: 'Video switch → display',
+          detail: nameList(videoSwitch) + ' exposes video switch functions; ' + nameList(videoSinks) +
+            ' is the sink. Blueprint interconnect should land processor HDMI out on the display input used in the PowerOn workflow.'
+        });
+      }
+
+      if (audioSwitch.length && !sources.length) {
+        realized.push({
+          title: 'Processor / AVR audio services',
+          detail: nameList(audioSwitch) + ' can provide volume, mute, and surround modes for the zone once a source is added to the stack or already in the config.'
+        });
+      }
+
+      if (shades.length && videoSinks.length) {
+        realized.push({
+          title: 'Masking + picture geometry',
+          detail: 'Shade/mask services on ' + nameList(shades) + ' can pair with display picture-position actions on ' +
+            nameList(videoSinks) + '. Realized in practice via a shared Automator (e.g. Fullscreen) called from zone or video-service triggers — not by the profiles alone.'
+        });
+      } else if (shades.length) {
+        realized.push({
+          title: 'Shade / masking services',
+          detail: nameList(shades) + ' can drive screen masking from host triggers/workflows. Load a display profile to plan picture-position pairing.'
+        });
+      }
+
+      // Contact / drape style from analysis flags even without resource types
+      const relays = profiles.filter(function(p, i) {
+        return p.analysis && (p.analysis.isMomentary || p.analysis.isContact);
+      }).map(function(p, idx) {
+        const i = profiles.indexOf(p);
+        return { p: p, i: i };
+      });
+      if (relays.length) {
+        realized.push({
+          title: 'Contact / drape environment',
+          detail: nameList(relays) + ' can realize open/close (or pulse) as zone environment via host ZoneIsActive triggers. Not an HDMI service — wire to extender relay ports.'
+        });
+      }
+
+      if (lighting.length) {
+        realized.push({
+          title: 'Lighting / fan (host resources)',
+          detail: nameList(lighting) + ' expose lighting/fan-style resources. Usually driven from the host (LTC) or scenes, coordinated with theater On via triggers — not via AV interconnects.'
+        });
+      }
+
+      // Union catalog
+      const catalog = Object.keys(allTypes).sort().map(function(t) {
+        const bps = allTypes[t];
+        return {
+          type: t,
+          label: humanizeServiceType(t),
+          owners: bps
+        };
+      });
+
+      if (!realized.length && !catalog.length) {
+        host.innerHTML = '<p style="color:var(--text-muted)">No resource_type services found in the loaded profiles. Timing interaction still applies.</p>';
+        card.style.display = 'block';
+        return;
+      }
+
+      let html = '';
+      if (realized.length) {
+        html += '<p style="color:var(--text-muted);font-size:0.88rem;margin-bottom:0.65rem;">Possible <strong>zone-level</strong> capabilities when these profiles are used together (services compose across devices; host workflows/triggers still wire the behavior).</p><ul>';
+        realized.forEach(function(r) {
+          html += '<li><strong>' + r.title + '</strong> — ' + r.detail + '</li>';
+        });
+        html += '</ul>';
+      }
+
+      html += '<p style="margin-top:1rem;color:var(--text-muted);font-size:0.88rem;"><strong>Service catalog across stack</strong> (who declares each resource type):</p><ul>';
+      catalog.forEach(function(c) {
+        html += '<li><strong>' + escapeHtml(c.label) + '</strong> <span style="color:var(--text-dim);font-family:IBM Plex Mono,monospace;font-size:0.72rem;">' +
+          escapeHtml(c.type) + '</span> — ' + nameList(c.owners) + '</li>';
+      });
+      html += '</ul>';
+      html += '<p style="margin-top:0.75rem;color:var(--text-dim);font-size:0.82rem;">Services listed are what the profiles <em>can</em> expose. Blueprint must enable the service in the zone and complete interconnects + triggers for the behavior to appear in the UI.</p>';
+
+      host.innerHTML = html;
+      card.style.display = 'block';
     }
   </script>
 </body>
