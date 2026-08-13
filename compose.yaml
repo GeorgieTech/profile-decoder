@@ -1,0 +1,30 @@
+# Profile Decoder — Docker Compose
+# Use on TrueNAS SCALE (Custom App / Compose) or any Docker host.
+#
+#   docker compose up -d
+#   open http://<host>:8088/
+
+services:
+  profile-decoder:
+    build: .
+    image: profile-decoder:1.1
+    container_name: profile-decoder
+    restart: unless-stopped
+    ports:
+      # Host:Container — change left side if 8088 is taken on TrueNAS
+      - "8088:80"
+    # No volumes required — static files baked into the image
+    # No env vars required — 100% client-side decoding
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx:size=8m,mode=755
+      - /var/run:size=1m,mode=755
+      - /tmp:size=1m,mode=755
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/healthz"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
